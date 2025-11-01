@@ -1,7 +1,13 @@
-# EasyEffects-PulseWire-Presets 🎛️
+# 🎧 EasyEffects PulseWire Presets
 
-A curated collection of presets for EasyEffects (formerly PulseAudio/EQ-based) running on PipeWire/PulseAudio on Linux.  
-Instead of individually searching for presets globally, you’ll find a wide variety of ready-to-use JSON presets for many use-cases and devices here.
+[![License](https://img.shields.io/badge/License-Apache--2.0-blue.svg)](LICENSE)
+![Platform](https://img.shields.io/badge/Platform-Linux-lightgrey)
+![Status](https://img.shields.io/badge/Status-Active-success)
+![Contributions](https://img.shields.io/badge/Contributions-Welcome-brightgreen)
+![GitHub stars](https://img.shields.io/github/stars/roshhellwett/easyeffects-pulsewire-presets?style=social)
+
+A curated collection of high-quality **EasyEffects** presets designed for **PipeWire** and **PulseAudio** on Linux.  
+These presets help you instantly enhance your sound experience — whether for music, movies, gaming, or voice clarity.
 
 ## 🔍 What’s Inside  
 You’ll find presets organised by use case and device type, including but not limited to:  
@@ -24,8 +30,40 @@ Each preset is exported in JSON format so you can import them directly into Easy
    git clone https://github.com/roshhellwett/easyeffects-pulsewire-presets.git
    cd easyeffects-pulsewire-presets
 
+## 🧩 Features
+- 🎵 Ready-to-use EQ and effects presets  
+- 🎙️ Voice clarity, loudness, and dialogue enhancer modes  
+- 🎧 Bass-boosted and genre-specific audio profiles  
+- 🖥️ Compatible with **PipeWire** and **PulseAudio** setups  
+- 💾 Lightweight, shareable JSON files for EasyEffects  
+
+## 📂 Folder Structure
+easyeffects-pulsewire-presets/
+├── bass-boost/
+│ ├── DeepBass.json
+│ ├── BalancedBass.json
+├── clarity/
+│ ├── VoiceEnhancer.json
+│ ├── DialogueBoost.json
+├── genre/
+│ ├── Rock.json
+│ ├── Lofi.json
+│ ├── EDM.json
+├── devices/
+│ ├── SonyWH1000XM4.json
+│ ├── BoseQC35.json
+└── README.md
+
+
+Each folder contains multiple JSON preset files, easily importable into EasyEffects.
 
 ---
 
-If you like, I can **add badges** (license, stars, downloads) and a **folder-structure diagram** to the README for more clarity. Would you like that?
-::contentReference[oaicite:6]{index=6}
+## 🚀 How to Use
+
+1. Clone this repository:
+   ```bash
+   git clone https://github.com/roshhellwett/easyeffects-pulsewire-presets.git
+   cd easyeffects-pulsewire-presets
+
+
