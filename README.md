@@ -38,6 +38,7 @@ Each preset is exported in JSON format so you can import them directly into Easy
 - 💾 Lightweight, shareable JSON files for EasyEffects  
 
 ## 📂 Folder Structure
+```
 easyeffects-pulsewire-presets/
 ├── bass-boost/
 │ ├── DeepBass.json
@@ -53,6 +54,7 @@ easyeffects-pulsewire-presets/
 │ ├── SonyWH1000XM4.json
 │ ├── BoseQC35.json
 └── README.md
+```
 
 
 Each folder contains multiple JSON preset files, easily importable into EasyEffects.
