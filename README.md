@@ -67,5 +67,9 @@ Each folder contains multiple JSON preset files, easily importable into EasyEffe
    ```bash
    git clone https://github.com/roshhellwett/easyeffects-pulsewire-presets.git
    cd easyeffects-pulsewire-presets
+---
 
+© 2026 [Zenith Open Source Projects](https://zenithprojects.up.railway.app/). All Rights Reserved.  
+Zenith is a Open Source Project Idea's by @roshhellwett
 
+---
