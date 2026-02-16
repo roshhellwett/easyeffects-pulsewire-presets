@@ -1,4 +1,4 @@
-# 🎧 EasyEffects PulseWire Presets
+# Project PulseWire
 
 [![License](https://img.shields.io/badge/License-Apache--2.0-blue.svg)](LICENSE)
 ![Platform](https://img.shields.io/badge/Platform-Linux-lightgrey)
@@ -39,7 +39,7 @@ Each preset is exported in JSON format so you can import them directly into Easy
 
 ## 📂 Folder Structure
 ```
-easyeffects-pulsewire-presets/
+projectpulsewire/
 ├── bass-boost/
 │ ├── DeepBass.json
 │ ├── BalancedBass.json
@@ -65,8 +65,8 @@ Each folder contains multiple JSON preset files, easily importable into EasyEffe
 
 1. Clone this repository:
    ```bash
-   git clone https://github.com/roshhellwett/easyeffects-pulsewire-presets.git
-   cd easyeffects-pulsewire-presets
+   git clone https://github.com/roshhellwett/projectpulsewire.git
+   cd projectpulsewire
 ---
 
 © 2026 [Zenith Open Source Projects](https://zenithopensourceprojects.vercel.app/). All Rights Reserved.  
