@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "projectpulsewire"
-version = "1.0.1"
+version = "1.0.3"
 description = "EasyEffects presets for PipeWire/PulseAudio on Linux"
 readme = "readme.md"
 license = "MIT"
@@ -44,7 +44,7 @@ package-dir = {"" = "src"}
 where = ["src"]
 
 [tool.setuptools.package-data]
-"projectpulsewire" = ["../presets/*.json", "../irs/*.irs"]
+projectpulsewire = ["presets/*.json", "irs/*.irs"]
 
 [tool.typer.core]
 default_command = "start"

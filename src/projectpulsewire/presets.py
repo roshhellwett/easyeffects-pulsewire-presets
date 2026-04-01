@@ -5,12 +5,33 @@ import logging
 from pathlib import Path
 from typing import List, Dict, Optional
 from functools import lru_cache
+import importlib.util
 
 logging.basicConfig(level=logging.INFO, format="%(levelname)s: %(message)s")
 logger = logging.getLogger(__name__)
 
 _presets_cache = None
 _installed_cache = None
+
+def _find_package_data_dir() -> Path:
+    """Find the package data directory (works both in dev and installed mode)."""
+    possible_dirs = []
+    
+    possible_dirs.append(Path(__file__).parent.parent.parent / "presets")
+    
+    possible_dirs.append(Path(__file__).parent / "presets")
+    
+    spec = importlib.util.find_spec("projectpulsewire")
+    if spec and spec.submodule_search_locations:
+        for loc in spec.submodule_search_locations:
+            p = Path(loc).parent / "presets"
+            possible_dirs.append(p)
+    
+    for d in possible_dirs:
+        if d.exists() and any(d.glob("*.json")):
+            return d
+    
+    return possible_dirs[0]
 
 def _clear_cache() -> None:
     """Clear all caches - call this when presets are installed/removed."""
@@ -19,8 +40,7 @@ def _clear_cache() -> None:
     _installed_cache = None
 
 def get_presets_dir() -> Path:
-    base_dir = Path(__file__).parent.parent.parent / "presets"
-    return base_dir
+    return _find_package_data_dir()
 
 def get_easyeffects_presets_dir() -> Optional[Path]:
     xdg_config = os.environ.get("XDG_CONFIG_HOME", str(Path.home() / ".config"))
