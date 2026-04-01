@@ -1,8 +1,8 @@
-# projectpulsewire
-
 [![License](https://img.shields.io/badge/License-MIT-45b7d1?style=flat-square)](LICENSE)
-[![PyPI](https://img.shields.io/badge/PyPI-1.0.1-4ecdc4?style=flat-square)](https://pypi.org/project/projectpulsewire/)
+[![PyPI](https://img.shields.io/badge/PyPI-1.0.7-4ecdc4?style=flat-square)](https://pypi.org/project/projectpulsewire/)
 [![Platform](https://img.shields.io/badge/Platform-Linux-FCC624?style=flat-square&logo=linux)](https://github.com/roshhellwett/projectpulsewire)
+
+# PROJECT PULSEWIRE
 
 EasyEffects presets for PipeWire/PulseAudio on Linux. Transform your Linux audio experience with one command!
 
@@ -168,25 +168,6 @@ sudo pacman -S easyeffects
 
 ---
 
-## ❓ Frequently Asked Questions
-
-### Q: Do I need to install every time?
-**A:** No! Once installed, they stay in EasyEffects until you remove them.
-
-### Q: Can I install multiple presets?
-**A:** Yes! In the menu, choose "Install multiple" and enter numbers like `1,2,3`
-
-### Q: Will this break my audio?
-**A:** No! EasyEffects has a "bypass" button to instantly disable all effects.
-
-### Q: What if I don't like a preset?
-**A:** Use menu option 6 to remove it, or just switch to another preset in EasyEffects.
-
-### Q: Does it work with PulseAudio?
-**A:** Yes! EasyEffects works with both PipeWire and PulseAudio.
-
----
-
 ## 🆘 Troubleshooting
 
 ### "Command not found" error
@@ -207,15 +188,6 @@ sudo pip install projectpulsewire
 
 ---
 
-## 📝 License
-
-**Copyright (c) 2026 Zenith Open Source Projects**  
-**Developer:** roshhellwett
-
-MIT License - Feel free to use, modify, and share!
-
----
-
 ## 🙏 Acknowledgments
 
 - [EasyEffects](https://github.com/wwmm/easyeffects) - The amazing audio equalizer
@@ -224,6 +196,4 @@ MIT License - Feel free to use, modify, and share!
 
 ---
 
-**Made with ❤️ for Linux Audio Enthusiasts**
-
-© 2026 [Zenith Open Source Projects](https://zenithopensourceprojects.vercel.app/)
+© 2026 [Zenith Open Source Projects](https://zenithopensourceprojects.vercel.app/). All Rights Reserved. Zenith is a Open Source Project Idea's by @roshhellwett
