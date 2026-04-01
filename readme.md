@@ -6,17 +6,9 @@
 
 EasyEffects presets for PipeWire/PulseAudio on Linux. Transform your Linux audio experience with one command!
 
----
+![SAMPLE](https://github.com/roshhellwett/projectpulsewire/blob/9b142db104c4f05d19cbabf78b11ae46ce332a1d/sample/samplezero.png)
 
-## 🎯 What is this?
-
-**projectpulsewire** makes your Linux audio sound AMAZING with zero effort! 
-
-Simply put:
-- 🎵 **Presets** = Pre-made audio settings (like Instagram filters, but for sound)
-- 🎧 **IRS Files** = Room correction and reverb effects
-
-Just run a command, restart EasyEffects, and enjoy enhanced bass, clearer voice, better music!
+![SAMPLE](https://github.com/roshhellwett/projectpulsewire/blob/9b142db104c4f05d19cbabf78b11ae46ce332a1d/sample/sampleone.png)
 
 ---
 
