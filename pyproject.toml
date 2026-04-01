@@ -1,0 +1,50 @@
+[build-system]
+requires = ["setuptools>=61.0", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "projectpulsewire"
+version = "1.0.1"
+description = "EasyEffects presets for PipeWire/PulseAudio on Linux"
+readme = "readme.md"
+license = "MIT"
+authors = [
+    {name = "roshellwett", email = "roshhellwett@zenithopensourceprojects.vercel.app"}
+]
+requires-python = ">=3.10"
+dependencies = [
+    "typer>=0.12.0",
+    "rich>=13.0.0",
+]
+classifiers = [
+    "Development Status :: 4 - Beta",
+    "Environment :: Console",
+    "Intended Audience :: End Users/Desktop",
+    "Operating System :: POSIX :: Linux",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Topic :: Multimedia :: Sound/Audio",
+]
+keywords = ["easyeffects", "pipewire", "pulseaudio", "audio", "eq", "presets", "linux"]
+
+[project.scripts]
+projectpulsewire = "projectpulsewire.cli:app"
+
+[project.urls]
+Homepage = "https://github.com/roshhellwett/projectpulsewire"
+Repository = "https://github.com/roshhellwett/projectpulsewire.git"
+Issues = "https://github.com/roshhellwett/projectpulsewire/issues"
+
+[tool.setuptools]
+package-dir = {"" = "src"}
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.setuptools.package-data]
+"projectpulsewire" = ["../presets/*.json", "../irs/*.irs"]
+
+[tool.typer.core]
+default_command = "start"
