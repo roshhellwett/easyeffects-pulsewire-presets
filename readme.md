@@ -1,74 +1,229 @@
-![Repo Size](https://img.shields.io/github/repo-size/roshhellwett/projectpulsewire?style=for-the-badge)
-![Stars](https://img.shields.io/github/stars/roshhellwett/projectpulsewire?style=for-the-badge)
-![Forks](https://img.shields.io/github/forks/roshhellwett/projectpulsewire?style=for-the-badge)
-![Issues](https://img.shields.io/github/issues/roshhellwett/projectpulsewire?style=for-the-badge)
-![Linux](https://img.shields.io/badge/Platform-Linux-FCC624?style=for-the-badge&logo=linux)
+# projectpulsewire
 
-# PROJECT PULSEWIRE
+[![License](https://img.shields.io/badge/License-MIT-45b7d1?style=flat-square)](LICENSE)
+[![PyPI](https://img.shields.io/badge/PyPI-1.0.1-4ecdc4?style=flat-square)](https://pypi.org/project/projectpulsewire/)
+[![Platform](https://img.shields.io/badge/Platform-Linux-FCC624?style=flat-square&logo=linux)](https://github.com/roshhellwett/projectpulsewire)
 
-A curated collection of high-quality **EasyEffects** presets designed for **PipeWire** and **PulseAudio** on Linux.  
-These presets help you instantly enhance your sound experience — whether for music, movies, gaming, or voice clarity.
+EasyEffects presets for PipeWire/PulseAudio on Linux. Transform your Linux audio experience with one command!
 
 ---
 
-## 🔍 What’s Inside  
-You’ll find presets organised by use case and device type, including but not limited to:  
-- Bass boost and enhanced EQ presets  
-- Dialogue clarity / vocal-boost presets  
-- Music genre-specific presets (rock, lofi, k-pop, etc)  
-- Device-specific presets (e.g., “Sony”, “Bose”)  
-- Loudness / auto-gain presets  
-Each preset is exported in JSON format so you can import them directly into EasyEffects.
+## 🎯 What is this?
+
+**projectpulsewire** makes your Linux audio sound AMAZING with zero effort! 
+
+Simply put:
+- 🎵 **Presets** = Pre-made audio settings (like Instagram filters, but for sound)
+- 🎧 **IRS Files** = Room correction and reverb effects
+
+Just run a command, restart EasyEffects, and enjoy enhanced bass, clearer voice, better music!
 
 ---
 
-## 📦 Why Use This  
-- Saves time: skip the process of manually hunting for presets or creating from scratch.  
-- Variety: covers many genres, devices, and use-cases under a single repository.  
-- Linux-friendly: made specifically for pipewire/pulseaudio + EasyEffects environments.  
-- Ready to import: simply load the JSON into your EasyEffects preset manager.
+## 🚀 Quick Install (For Everyone)
 
----
+### Step 1: Install the package
 
-## 🧩 Features
-- 🎵 Ready-to-use EQ and effects presets  
-- 🎙️ Voice clarity, loudness, and dialogue enhancer modes  
-- 🎧 Bass-boosted and genre-specific audio profiles  
-- 🖥️ Compatible with **PipeWire** and **PulseAudio** setups  
-- 💾 Lightweight, shareable JSON files for EasyEffects
+Open your terminal and run:
 
----
-
-## 🚀 How to Use
-
-1. Clone this repository:
 ```bash
-   git clone https://github.com/roshhellwett/projectpulsewire.git
-   cd projectpulsewire
+pip install projectpulsewire
+```
+
+### Step 2: Open the menu
+
+```bash
+python -m projectpulsewire start
+```
+
+### Step 3: Choose what to do!
+
+```
+1. Browse & Preview Presets (EQ)   ← See all available audio profiles
+2. Browse & Preview IRS (Convolution)  ← See reverb/correction files  
+3. Install Preset(s)                ← Install presets to EasyEffects
+4. Install IRS(s)                   ← Install IRS files
+5. View Installed (Presets + IRS)    ← See what you installed
+6. Remove Preset(s)/IRS(s)          ← Uninstall
+7. Update projectpulsewire          ← Get new versions
+8. Help & Commands                  ← Learn more
+9. Exit
+```
+
+### Step 4: Restart EasyEffects
+
+After installing presets, close and reopen **EasyEffects** app. Your new presets will appear in the preset manager!
+
+---
+
+## 💻 Commands for Power Users
+
+### Interactive Menu (Recommended for Beginners)
+```bash
+python -m projectpulsewire start
+```
+
+### List All Presets
+```bash
+python -m projectpulsewire list
+```
+
+### List All IRS Files  
+```bash
+python -m projectpulsewire list-irs
+```
+
+### Install a Specific Preset
+```bash
+python -m projectpulsewire install "Bass Boosted"
+python -m projectpulsewire install "Rock"
+python -m projectpulsewire install "Lofi"
+```
+
+### Install an IRS File
+```bash
+python -m projectpulsewire install-irs "BassWaves"
+python -m projectpulsewire install-irs "Dolby Headphone"
+```
+
+### View Installed Items
+```bash
+python -m projectpulsewire installed
+```
+
+### Remove a Preset
+```bash
+python -m projectpulsewire remove "Bass Boosted"
+```
+
+### Update to Latest Version
+```bash
+python -m projectpulsewire update
+```
+
+### Get Help
+```bash
+python -m projectpulsewire --help
+python -m projectpulsewire --version
 ```
 
 ---
 
-## 📂 Folder Structure
+## 📋 System Requirements
+
+| Requirement | Details |
+|-------------|---------|
+| OS | Linux (Ubuntu, Fedora, Arch, etc.) |
+| Python | 3.10 or higher |
+| Audio Server | PipeWire or PulseAudio |
+| Required App | [EasyEffects](https://github.com/wwmm/easyeffects) |
+
+### How to Install EasyEffects
+
+**Ubuntu/Debian:**
+```bash
+sudo apt install easyeffects
 ```
-projectpulsewire/
-├── bass-boost/
-│ ├── DeepBass.json
-│ ├── BalancedBass.json
-├── clarity/
-│ ├── VoiceEnhancer.json
-│ ├── DialogueBoost.json
-├── genre/
-│ ├── Rock.json
-│ ├── Lofi.json
-│ ├── EDM.json
-├── devices/
-│ ├── SonyWH1000XM4.json
-│ ├── BoseQC35.json
-└── README.md
+
+**Fedora:**
+```bash
+sudo dnf install easyeffects
+```
+
+**Arch Linux:**
+```bash
+sudo pacman -S easyeffects
 ```
 
 ---
 
-© 2026 [Zenith Open Source Projects](https://zenithopensourceprojects.vercel.app/). All Rights Reserved.  
-Zenith is a Open Source Project Idea's by @roshhellwett
+## 🎵 What's Included?
+
+### 37 EQ Presets
+- Bass Boost, Heavy Bass, HB-Flat, HB-Lite, HB-Mid
+- Rock, Classical, LoFi, EDM, Indie, K-Pop
+- Sony, Bose (device-specific)
+- Voice clarity presets
+- Video/Movie presets
+- Loudness/Auto-gain presets
+
+### 404 IRS Files
+- Dolby Surround profiles
+- DFX audio enhancements
+- Creative X-Fi profiles
+- Bass enhancement
+- Room correction
+- Headphone virtualization
+
+---
+
+## 🔧 Where Do Presets Go?
+
+| Type | Location |
+|------|----------|
+| JSON Presets | `~/.config/easyeffects/presets/` |
+| IRS Files | `~/.config/easyeffects/convolver/` |
+
+*Note: `~` means your home folder (e.g., `/home/username`)*
+
+---
+
+## ❓ Frequently Asked Questions
+
+### Q: Do I need to install every time?
+**A:** No! Once installed, they stay in EasyEffects until you remove them.
+
+### Q: Can I install multiple presets?
+**A:** Yes! In the menu, choose "Install multiple" and enter numbers like `1,2,3`
+
+### Q: Will this break my audio?
+**A:** No! EasyEffects has a "bypass" button to instantly disable all effects.
+
+### Q: What if I don't like a preset?
+**A:** Use menu option 6 to remove it, or just switch to another preset in EasyEffects.
+
+### Q: Does it work with PulseAudio?
+**A:** Yes! EasyEffects works with both PipeWire and PulseAudio.
+
+---
+
+## 🆘 Troubleshooting
+
+### "Command not found" error
+Make sure Python is in your PATH. Try:
+```bash
+python3 -m projectpulsewire start
+```
+
+### Presets not appearing
+1. Make sure you restart EasyEffects after installing
+2. Check if installed: `python -m projectpulsewire installed`
+
+### Permission denied errors
+Run terminal as admin for installation:
+```bash
+sudo pip install projectpulsewire
+```
+
+---
+
+## 📝 License
+
+**Copyright (c) 2026 Zenith Open Source Projects**  
+**Developer:** roshhellwett
+
+MIT License - Feel free to use, modify, and share!
+
+---
+
+## 🙏 Acknowledgments
+
+- [EasyEffects](https://github.com/wwmm/easyeffects) - The amazing audio equalizer
+- [PipeWire](https://pipewire.org/) - Modern audio server
+- All preset creators in the Linux audio community
+
+---
+
+**Made with ❤️ for Linux Audio Enthusiasts**
+
+© 2026 [Zenith Open Source Projects](https://zenithopensourceprojects.vercel.app/)
