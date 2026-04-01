@@ -85,7 +85,7 @@ def get_preset_by_name(name: str) -> Optional[Dict]:
     return None
 
 def get_presets_by_category(presets: List[Dict]) -> Dict[str, List[Dict]]:
-    categories = {}
+    categories: Dict[str, List[Dict]] = {}
     
     category_keywords = {
         "Bass": ["bass", "hb-", "heavy"],
@@ -114,7 +114,8 @@ def get_presets_by_category(presets: List[Dict]) -> Dict[str, List[Dict]]:
                 categories["Other"] = []
             categories["Other"].append(preset)
     
-    return categories
+    # Ensure all keys are strings (defensive)
+    return {str(k): v for k, v in categories.items()}
 
 def get_installed_presets(force_refresh: bool = False) -> List[str]:
     global _installed_cache

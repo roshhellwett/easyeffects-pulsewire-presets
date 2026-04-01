@@ -129,11 +129,18 @@ def handle_browse_presets() -> None:
     
     categories = presets_module.get_presets_by_category(all_presets)
     
+    # Ensure categories is a proper dict with string keys (defensive)
+    if not isinstance(categories, dict):
+        console.print("[yellow]Error: Could not load categories.[/yellow]")
+        pause_for_user()
+        return
+    
+    # Convert keys to list explicitly to avoid dict_keys issues
+    cat_list = sorted(list(categories.keys()))
+    
     while True:
         console.clear()
         console.print("\n[bold cyan]--- Browse Presets ---[/bold cyan]\n")
-        
-        cat_list = list(categories.keys())
         
         console.print("[bold]Categories:[/bold]")
         for i, cat in enumerate(cat_list, 1):
@@ -863,11 +870,18 @@ def handle_browse_irs() -> None:
     
     categories = irs_module.get_irs_by_category(all_irs)
     
+    # Ensure categories is a proper dict with string keys (defensive)
+    if not isinstance(categories, dict):
+        console.print("[yellow]Error: Could not load categories.[/yellow]")
+        pause_for_user()
+        return
+    
+    # Convert keys to list explicitly to avoid dict_keys issues
+    cat_list = sorted(list(categories.keys()))
+    
     while True:
         console.clear()
         console.print("\n[bold cyan]--- Browse IRS Files ---[/bold cyan]\n")
-        
-        cat_list = list(categories.keys())
         
         console.print("[bold]Categories:[/bold]")
         for i, cat in enumerate(cat_list, 1):
@@ -1301,8 +1315,8 @@ def update():
     """Check for updates and upgrade projectpulsewire from PyPI."""
     handle_update()
 
-@app.command()
-def list(category: str | None = typer.Option(None, "--category", "-c", help="Filter by category")):
+@app.command(name="list")
+def list_cmd(category: str | None = typer.Option(None, "--category", "-c", help="Filter by category")):
     """List all available presets."""
     all_presets = presets_module.get_all_presets()
     

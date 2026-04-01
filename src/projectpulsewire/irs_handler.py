@@ -79,7 +79,7 @@ def get_irs_by_name(name: str) -> Optional[Dict]:
     return None
 
 def get_irs_by_category(irs_list: List[Dict]) -> Dict[str, List[Dict]]:
-    categories = {}
+    categories: Dict[str, List[Dict]] = {}
     
     category_keywords = {
         "Dolby": ["dolby"],
@@ -112,7 +112,8 @@ def get_irs_by_category(irs_list: List[Dict]) -> Dict[str, List[Dict]]:
                 categories["Other"] = []
             categories["Other"].append(irs)
     
-    return categories
+    # Ensure all keys are strings (defensive)
+    return {str(k): v for k, v in categories.items()}
 
 def get_installed_irs(force_refresh: bool = False) -> List[str]:
     global _installed_irs_cache
