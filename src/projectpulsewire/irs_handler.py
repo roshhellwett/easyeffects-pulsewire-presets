@@ -3,7 +3,6 @@ import shutil
 import logging
 from pathlib import Path
 from typing import List, Dict, Optional
-import importlib.util
 
 logging.basicConfig(level=logging.INFO, format="%(levelname)s: %(message)s")
 logger = logging.getLogger(__name__)
@@ -12,24 +11,19 @@ _irs_cache = None
 _installed_irs_cache = None
 
 def _find_package_data_dir() -> Path:
-    """Find the package data directory (works both in dev and installed mode)."""
-    possible_dirs = []
+    """Find the IRS directory (works both in dev and installed mode)."""
+    package_dir = Path(__file__).parent
+    irs_dir = package_dir / "irs"
     
-    possible_dirs.append(Path(__file__).parent.parent.parent / "irs")
+    if irs_dir.exists() and any(irs_dir.glob("*.irs")):
+        return irs_dir
     
-    possible_dirs.append(Path(__file__).parent / "irs")
+    dev_irs = package_dir.parent.parent / "irs"
+    if dev_irs.exists() and any(dev_irs.glob("*.irs")):
+        return dev_irs
     
-    spec = importlib.util.find_spec("projectpulsewire")
-    if spec and spec.submodule_search_locations:
-        for loc in spec.submodule_search_locations:
-            p = Path(loc).parent / "irs"
-            possible_dirs.append(p)
-    
-    for d in possible_dirs:
-        if d.exists() and any(d.glob("*.irs")):
-            return d
-    
-    return possible_dirs[0]
+    logger.warning(f"IRS directory not found. Searched: {irs_dir}, {dev_irs}")
+    return irs_dir
 
 def _clear_cache() -> None:
     """Clear all caches - call this when IRS are installed/removed."""
