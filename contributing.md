@@ -231,20 +231,4 @@ Types: `feat`, `fix`, `docs`, `refactor`, `test`
 
 ---
 
-## Code of Conduct
-
-- Be respectful and inclusive
-- Welcome newcomers and beginners
-- Provide constructive feedback
-- Help others learn and grow
-
----
-
-## Thank You! 🙏
-
-Every contribution makes Linux audio better for everyone!
-
----
-
-© 2026 [Zenith Open Source Projects](https://zenithopensourceprojects.vercel.app/). All Rights Reserved.  
-Zenith is an Open Source Project Idea by @roshhellwett
+© 2026 [Zenith Open Source Projects](https://zenithopensourceprojects.vercel.app/). All Rights Reserved. Zenith is an Open Source Project Idea by @roshhellwett
