@@ -36,8 +36,21 @@ def _clear_cache() -> None:
 def get_presets_dir() -> Path:
     return _find_package_data_dir()
 
+def _get_real_home() -> Path:
+    sudo_user = os.environ.get("SUDO_USER")
+    if sudo_user:
+        try:
+            import pwd
+            return Path(pwd.getpwnam(sudo_user).pw_dir)
+        except (ImportError, KeyError):
+            pass
+    return Path.home()
+
 def get_easyeffects_presets_dir() -> Optional[Path]:
-    xdg_config = os.environ.get("XDG_CONFIG_HOME", str(Path.home() / ".config"))
+    xdg_config = os.environ.get("XDG_CONFIG_HOME")
+    if not xdg_config or (os.environ.get("SUDO_USER") and xdg_config.startswith("/root")):
+        xdg_config = str(_get_real_home() / ".config")
+        
     ee_dir = Path(xdg_config) / "easyeffects" / "presets"
     return ee_dir
 
