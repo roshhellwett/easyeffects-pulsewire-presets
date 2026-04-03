@@ -1,5 +1,5 @@
 [![License](https://img.shields.io/badge/License-MIT-45b7d1?style=flat-square)](LICENSE)
-[![PyPI](https://img.shields.io/badge/PyPI-1.0.7-4ecdc4?style=flat-square)](https://pypi.org/project/projectpulsewire/)
+[![PyPI](https://img.shields.io/badge/PyPI-1.0.8-4ecdc4?style=flat-square)](https://pypi.org/project/projectpulsewire/)
 [![Platform](https://img.shields.io/badge/Platform-Linux-FCC624?style=flat-square&logo=linux)](https://github.com/roshhellwett/projectpulsewire)
 
 # PROJECT PULSEWIRE
