@@ -94,7 +94,7 @@ def show_main_menu() -> str:
 [bold]---[/bold] [yellow]Quick Info[/yellow] [bold]---[/bold]
   Available Presets: {len(all_presets)}  |  Installed Presets: {len(installed_presets)}
   Available IRS: {len(all_irs)}  |  Installed IRS: {len(installed_irs)}
-  Presets Folder: {ee_dir_display}
+  Output Presets Folder: {ee_dir_display}
   Convolver Folder: {convolver_dir_display}
 
 [bold]---[/bold] [yellow]Menu Options[/yellow] [bold]---[/bold]
@@ -411,7 +411,7 @@ def handle_view_installed() -> None:
     ee_dir = presets_module.get_easyeffects_presets_dir()
     convolver_dir = irs_module.get_easyeffects_convolver_dir()
     
-    console.print(f"[dim]Presets Folder: {ee_dir}[/dim]")
+    console.print(f"[dim]Output Presets Folder: {ee_dir}[/dim]")
     console.print(f"[dim]Convolver Folder: {convolver_dir}[/dim]\n")
     
     if not installed_presets and not installed_irs:
@@ -1247,8 +1247,9 @@ def handle_help() -> None:
   [green]pip install projectpulsewire[/green]
 
 [bold yellow]How It Works:[/bold yellow]
-  [dim]• JSON Presets → ~/.config/easyeffects/presets/ (EQ & effects)[/dim]
-  [dim]• IRS Files → ~/.config/easyeffects/convolver/ (Convolution reverb)[/dim]
+  [dim]• Output Presets → ~/.config/easyeffects/output/ (speakers/headphones)[/dim]
+  [dim]• Input Presets → ~/.config/easyeffects/input/ (microphone)[/dim]
+  [dim]• IRS Files → ~/.config/easyeffects/irs/ (Convolver impulse responses)[/dim]
   [dim]• Restart EasyEffects after installing new items[/dim]
   [dim]• Find presets in EasyEffects preset manager[/dim]
   [dim]• Find IRS in EasyEffects Convolver plugin[/dim]

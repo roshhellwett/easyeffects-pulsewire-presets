@@ -46,12 +46,18 @@ def _get_real_home() -> Path:
             pass
     return Path.home()
 
-def get_easyeffects_presets_dir() -> Optional[Path]:
+def get_easyeffects_presets_dir(preset_type: str = "output") -> Optional[Path]:
+    """Get the EasyEffects presets directory.
+    
+    Args:
+        preset_type: Either 'output' (speakers/headphones) or 'input' (microphone).
+                     Defaults to 'output'.
+    """
     xdg_config = os.environ.get("XDG_CONFIG_HOME")
     if not xdg_config or (os.environ.get("SUDO_USER") and xdg_config.startswith("/root")):
         xdg_config = str(_get_real_home() / ".config")
         
-    ee_dir = Path(xdg_config) / "easyeffects" / "presets"
+    ee_dir = Path(xdg_config) / "easyeffects" / preset_type
     return ee_dir
 
 def get_all_presets(force_refresh: bool = False) -> List[Dict]:
@@ -139,16 +145,14 @@ def get_installed_presets(force_refresh: bool = False) -> List[str]:
     if _installed_cache is not None:
         return _installed_cache
     
-    ee_dir = get_easyeffects_presets_dir()
-    if not ee_dir or not ee_dir.exists():
-        _installed_cache = []
-        return _installed_cache
-    
     installed = []
-    for file in ee_dir.glob("*.json"):
-        installed.append(file.stem)
+    for preset_type in ("output", "input"):
+        ee_dir = get_easyeffects_presets_dir(preset_type)
+        if ee_dir and ee_dir.exists():
+            for file in ee_dir.glob("*.json"):
+                installed.append(file.stem)
     
-    _installed_cache = sorted(installed)
+    _installed_cache = sorted(list(set(installed)))
     return _installed_cache
 
 def is_preset_installed(preset_name: str) -> bool:
@@ -228,15 +232,16 @@ def remove_preset(preset_name: str) -> tuple[bool, str]:
     if not preset_name:
         return False, "Preset name cannot be empty"
     
-    ee_dir = get_easyeffects_presets_dir()
-    
-    if not ee_dir or not ee_dir.exists():
-        return False, "EasyEffects presets directory not found. Is EasyEffects installed?"
-    
     preset_file = None
-    for file in ee_dir.glob("*.json"):
-        if file.stem.lower() == preset_name.lower():
-            preset_file = file
+    for preset_type in ("output", "input"):
+        ee_dir = get_easyeffects_presets_dir(preset_type)
+        if not ee_dir or not ee_dir.exists():
+            continue
+        for file in ee_dir.glob("*.json"):
+            if file.stem.lower() == preset_name.lower():
+                preset_file = file
+                break
+        if preset_file:
             break
     
     if not preset_file:
@@ -256,24 +261,25 @@ def remove_multiple_presets(preset_names: List[str]) -> tuple[bool, str]:
     if not preset_names:
         return True, "No presets selected for removal"
     
-    ee_dir = get_easyeffects_presets_dir()
-    
-    if not ee_dir or not ee_dir.exists():
-        return False, "EasyEffects presets directory not found. Is EasyEffects installed?"
-    
     removed = []
     failed = []
     
     for preset_name in preset_names:
         found = False
-        for file in ee_dir.glob("*.json"):
-            if file.stem.lower() == preset_name.lower():
-                try:
-                    file.unlink()
-                    removed.append(file.stem)
-                    found = True
-                except Exception as e:
-                    failed.append(f"{preset_name}: {str(e)}")
+        for preset_type in ("output", "input"):
+            ee_dir = get_easyeffects_presets_dir(preset_type)
+            if not ee_dir or not ee_dir.exists():
+                continue
+            for file in ee_dir.glob("*.json"):
+                if file.stem.lower() == preset_name.lower():
+                    try:
+                        file.unlink()
+                        removed.append(file.stem)
+                        found = True
+                    except Exception as e:
+                        failed.append(f"{preset_name}: {str(e)}")
+                    break
+            if found:
                 break
         if not found:
             failed.append(f"{preset_name}: not found")
