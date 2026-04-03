@@ -177,7 +177,7 @@ def handle_browse_presets() -> None:
             continue
         
         if not selected_presets:
-            console.print("\n[yellow]No presets in this category.[/red]")
+            console.print("\n[yellow]No presets in this category.[/yellow]")
             safe_input("Press Enter to continue...")
             continue
         
@@ -738,120 +738,6 @@ def handle_remove_all_irs(installed_irs: list) -> None:
         print_success("All IRS removed!", message)
     else:
         print_error_context("Failed to remove IRS", message, "Check folder permissions")
-    
-    pause_for_user()
-    
-    console.print("\n[bold]--- Removal Options ---[/bold]")
-    console.print("  [cyan]1[/cyan]  Remove single preset")
-    console.print("  [cyan]2[/cyan]  Remove multiple presets (e.g., 1,2,3)")
-    console.print("  [cyan]3[/cyan]  Remove all installed presets")
-    console.print("  [cyan]B[/cyan]  Back to main menu")
-    
-    choice = safe_input("\n>> Select option: ").strip().lower()
-    
-    if choice == "b":
-        return
-    
-    if choice == "1":
-        handle_remove_single(installed)
-    elif choice == "2":
-        handle_remove_multiple(installed)
-    elif choice == "3":
-        handle_remove_all(installed)
-    else:
-        console.print("\n[red]Invalid choice.[/red]")
-        pause_for_user()
-
-def handle_remove_single(installed: list) -> None:
-    choice = safe_input("\n>> Enter preset number to remove: ").strip()
-    
-    if not choice.isdigit():
-        console.print("[red]Invalid choice.[/red]")
-        pause_for_user()
-        return
-    
-    idx = int(choice) - 1
-    if idx < 0 or idx >= len(installed):
-        console.print("[red]Invalid preset number.[/red]")
-        pause_for_user()
-        return
-    
-    preset_name = installed[idx]
-    confirm = safe_input(f"\nRemove '{preset_name}'? (Y/N): ").strip().lower()
-    
-    if confirm != "y":
-        console.print("[yellow]Removal cancelled.[/yellow]")
-        pause_for_user()
-        return
-    
-    success, message = presets_module.remove_preset(preset_name)
-    
-    if success:
-        print_success("Preset removed!", message)
-    else:
-        print_error_context("Failed to remove preset", message, "Check folder permissions")
-    
-    pause_for_user()
-
-def handle_remove_multiple(installed: list) -> None:
-    choice = safe_input("\n>> Enter preset numbers (comma-separated, e.g., 1,2,3): ").strip()
-    
-    try:
-        indices = [int(x.strip()) - 1 for x in choice.split(",")]
-    except ValueError:
-        console.print("[red]Invalid input. Use format: 1,2,3[/red]")
-        pause_for_user()
-        return
-    
-    presets_to_remove = []
-    invalid = []
-    
-    for idx in indices:
-        if idx < 0 or idx >= len(installed):
-            invalid.append(str(idx + 1))
-            continue
-        presets_to_remove.append(installed[idx])
-    
-    if invalid:
-        console.print(f"[yellow]Invalid numbers: {', '.join(invalid)}[/yellow]")
-    
-    if not presets_to_remove:
-        console.print("[yellow]No valid presets selected.[/yellow]")
-        pause_for_user()
-        return
-    
-    console.print(f"\n[cyan]Will remove: {', '.join(presets_to_remove)}[/cyan]")
-    confirm = safe_input("\nConfirm removal? (Y/N): ").strip().lower()
-    
-    if confirm != "y":
-        console.print("[yellow]Removal cancelled.[/yellow]")
-        pause_for_user()
-        return
-    
-    success, message = presets_module.remove_multiple_presets(presets_to_remove)
-    
-    if success:
-        print_success("Presets removed!", message)
-    else:
-        print_error_context("Failed to remove presets", message, "Check folder permissions")
-    
-    pause_for_user()
-
-def handle_remove_all(installed: list) -> None:
-    console.print(f"\n[red]WARNING: This will remove ALL {len(installed)} installed presets![/red]")
-    confirm = safe_input("Are you sure? (Y/N): ").strip().lower()
-    
-    if confirm != "y":
-        console.print("[yellow]Removal cancelled.[/yellow]")
-        pause_for_user()
-        return
-    
-    success, message = presets_module.remove_multiple_presets(installed)
-    
-    if success:
-        print_success("All presets removed!", message)
-    else:
-        print_error_context("Failed to remove presets", message, "Check folder permissions")
     
     pause_for_user()
 
