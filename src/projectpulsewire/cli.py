@@ -2,7 +2,6 @@ import os
 import sys
 import logging
 from pathlib import Path
-from datetime import datetime
 
 import typer
 from rich.console import Console
@@ -1038,77 +1037,72 @@ def handle_install_all_irs(all_irs: list, installed_irs: list) -> None:
 
 def handle_update() -> None:
     import subprocess
-    
+    import urllib.request
+    import urllib.error
+    import json as _json
+
     console.clear()
     console.print("\n[bold cyan]--- Update projectpulsewire ---[/bold cyan]\n")
     console.print("[dim]Checking for updates from PyPI...[/dim]\n")
-    
+
     try:
-        result = subprocess.run(
-            ["pip", "index", "versions", "projectpulsewire"],
-            capture_output=True,
-            text=True,
-            timeout=30,
+        req = urllib.request.Request(
+            "https://pypi.org/pypi/projectpulsewire/json",
+            headers={"Accept": "application/json"},
         )
-        
-        if result.returncode == 0:
-            lines = result.stdout.strip().split("\n")
-            available_versions = []
-            for line in lines:
-                if "Available versions:" in line:
-                    available_versions = line.replace("Available versions:", "").strip().split(", ")
-                    break
-            
-            current_result = subprocess.run(
-                ["pip", "show", "projectpulsewire"],
+        with urllib.request.urlopen(req, timeout=15) as resp:
+            data = _json.loads(resp.read().decode())
+
+        latest_version = data.get("info", {}).get("version", "Unknown")
+    except (urllib.error.URLError, _json.JSONDecodeError, Exception) as e:
+        logger.error(f"Failed to fetch latest version from PyPI: {e}")
+        print_error_context(
+            "Could not check for updates",
+            "Failed to reach PyPI",
+            "Check internet connection",
+        )
+        console.print("\n[dim]--- Copyright 2026 Zenith Open Source Projects ---[/dim]")
+        pause_for_user()
+        return
+
+    current_result = subprocess.run(
+        ["pip", "show", "projectpulsewire"],
+        capture_output=True,
+        text=True,
+        timeout=15,
+    )
+
+    current_version = "Unknown"
+    for line in current_result.stdout.split("\n"):
+        if line.startswith("Version:"):
+            current_version = line.replace("Version:", "").strip()
+            break
+
+    console.print(f"  [dim]Current version:[/dim] [yellow]{current_version}[/yellow]")
+    console.print(f"  [dim]Latest version:[/dim]  [green]{latest_version}[/green]\n")
+
+    if current_version != latest_version and latest_version != "Unknown":
+        console.print("[bold yellow]A new version is available![/bold yellow]\n")
+
+        do_update = Confirm.ask("Do you want to update now?", default=True)
+
+        if do_update:
+            console.print("\n[dim]Updating package...[/dim]\n")
+
+            update_result = subprocess.run(
+                ["pip", "install", "--upgrade", "projectpulsewire"],
                 capture_output=True,
                 text=True,
-                timeout=30,
+                timeout=120,
             )
-            
-            current_version = "Unknown"
-            for line in current_result.stdout.split("\n"):
-                if line.startswith("Version:"):
-                    current_version = line.replace("Version:", "").strip()
-                    break
-            
-            latest_version = available_versions[-1] if available_versions else "Unknown"
-            
-            console.print(f"  [dim]Current version:[/dim] [yellow]{current_version}[/yellow]")
-            console.print(f"  [dim]Latest version:[/dim]  [green]{latest_version}[/green]\n")
-            
-            if current_version != latest_version and latest_version != "Unknown":
-                console.print("[bold yellow]A new version is available![/bold yellow]\n")
-                
-                do_update = Confirm.ask("Do you want to update now?", default=True)
-                
-                if do_update:
-                    console.print("\n[dim]Updating package...[/dim]\n")
-                    
-                    update_result = subprocess.run(
-                        ["pip", "install", "--upgrade", "projectpulsewire"],
-                        capture_output=True,
-                        text=True,
-                        timeout=120,
-                    )
-                    
-                    if update_result.returncode == 0:
-                        print_success("Update successful!", "You are now running the latest version.")
-                    else:
-                        print_error_context("Update failed", update_result.stderr, "Try: pip install --upgrade projectpulsewire")
+
+            if update_result.returncode == 0:
+                print_success("Update successful!", "You are now running the latest version.")
             else:
-                print_info("You're up to date!", f"No updates available. Current version: {current_version}")
-        else:
-            print_error_context("Could not check for updates", result.stderr, "Check internet connection")
-            
-    except subprocess.TimeoutExpired:
-        print_error_context("Update check timed out", "Request took too long", "Check internet connection")
-    except FileNotFoundError:
-        print_error_context("pip not found", "Python pip not in PATH", "Ensure Python is properly installed")
-    except Exception as e:
-        logger.error(f"Update error: {e}")
-        print_error_context("Unexpected error", str(e), "Try again later")
-    
+                print_error_context("Update failed", update_result.stderr, "Try: pip install --upgrade projectpulsewire")
+    else:
+        print_info("You're up to date!", f"No updates available. Current version: {current_version}")
+
     console.print("\n[dim]--- Copyright 2026 Zenith Open Source Projects ---[/dim]")
     pause_for_user()
 
@@ -1182,7 +1176,11 @@ def main_menu_loop() -> None:
             pause_for_user()
 
 @app.callback()
-def main(version: bool = typer.Option(False, "--version", "-V", help="Show version and exit")):
+def callback(
+    version: bool = typer.Option(
+        False, "--version", "-V", help="Show version and exit", is_eager=True
+    ),
+):
     if version:
         print_version()
         raise typer.Exit()

@@ -95,7 +95,7 @@ python -m projectpulsewire update
 
 ### Get Help
 ```bash
-python -m projectpulsewire help
+python -m projectpulsewire --help
 python -m projectpulsewire version
 ```
 
