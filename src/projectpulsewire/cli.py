@@ -1175,7 +1175,7 @@ def main_menu_loop() -> None:
             print_error_context("An error occurred", str(e), "Try restarting the application")
             pause_for_user()
 
-@app.callback()
+@app.callback(invoke_without_command=True)
 def callback(
     version: bool = typer.Option(
         False, "--version", "-V", help="Show version and exit", is_eager=True
