@@ -3,12 +3,19 @@ import sys
 import logging
 from pathlib import Path
 
+if hasattr(sys.stdout, 'reconfigure') and sys.stdout.encoding.lower() != 'utf-8':
+    try:
+        sys.stdout.reconfigure(encoding='utf-8')
+    except Exception:
+        pass
+
 import typer
 from rich.console import Console
 from rich.panel import Panel
 from rich.text import Text
 from rich.table import Table
 from rich.prompt import Prompt, Confirm
+from rich import box
 
 from projectpulsewire import __version__
 from projectpulsewire import presets as presets_module
@@ -27,7 +34,7 @@ def safe_input(prompt_text: str, default: str = "", allow_empty: bool = True) ->
     if not is_interactive():
         return default
     try:
-        result = input(prompt_text).strip()
+        result = console.input(prompt_text).strip()
         if not result and not allow_empty:
             return default
         return result
@@ -37,7 +44,7 @@ def safe_input(prompt_text: str, default: str = "", allow_empty: bool = True) ->
 def pause_for_user() -> None:
     if is_interactive():
         try:
-            input("\nPress Enter to continue...")
+            console.input("\n[dim]Press [bold #00ffcc]Enter[/] to continue...[/]")
         except (EOFError, KeyboardInterrupt):
             pass
 
@@ -52,27 +59,27 @@ def print_version():
     """)
 
 def print_error_context(message: str, context: str = "", solution: str = "") -> None:
-    error_msg = f"[red]Error:[/red] {message}"
+    error_msg = f"[bold #ff4444]Error:[/bold #ff4444] {message}"
     if context:
-        error_msg += f"\n[yellow]Context:[/yellow] {context}"
+        error_msg += f"\n[#ffa500]Context:[/] {context}"
     if solution:
-        error_msg += f"\n[green]Solution:[/green] {solution}"
+        error_msg += f"\n[#00ffcc]Fix:[/] {solution}"
     
-    console.print(Panel(error_msg, title="Something went wrong", border_style="red"))
+    console.print(Panel(error_msg, title="[bold #ff4444] ❌ Big Yikes [/]", border_style="#ff4444", box=box.ROUNDED))
 
 def print_success(message: str, details: str = "") -> None:
-    msg = f"[green]{message}[/green]"
+    msg = f"[bold #00ffaa]{message}[/bold #00ffaa]"
     if details:
-        msg += f"\n\n{details}"
+        msg += f"\n\n[dim]{details}[/dim]"
     
-    console.print(Panel(msg, title="Success", border_style="green"))
+    console.print(Panel(msg, title="[bold #00ffaa] ✨ Huge W [/]", border_style="#00ffaa", box=box.ROUNDED))
 
 def print_info(message: str, details: str = "") -> None:
-    msg = f"[cyan]{message}[/cyan]"
+    msg = f"[bold #00ccff]{message}[/bold #00ccff]"
     if details:
-        msg += f"\n\n{details}"
+        msg += f"\n\n[dim]{details}[/dim]"
     
-    console.print(Panel(msg, title="Info", border_style="cyan"))
+    console.print(Panel(msg, title="[bold #00ccff] 💡 Just sayin' [/]", border_style="#00ccff", box=box.ROUNDED))
 
 def show_main_menu() -> str:
     console.clear()
@@ -86,31 +93,39 @@ def show_main_menu() -> str:
     convolver_dir = irs_module.get_easyeffects_convolver_dir()
     convolver_dir_display = str(convolver_dir) if convolver_dir else "Not detected"
     
-    console.print(Panel(f"""
-[bold cyan]Welcome to projectpulsewire[/bold cyan]
-[dim]EasyEffects presets for PipeWire/PulseAudio[/dim]
+    panel_content = f"""
+[bold #00ffcc]🔥 Welcome to projectpulsewire 🔥[/]
+[italic dim]Premium EasyEffects presets for PipeWire/PulseAudio[/]
 
-[bold]---[/bold] [yellow]Quick Info[/yellow] [bold]---[/bold]
-  Available Presets: {len(all_presets)}  |  Installed Presets: {len(installed_presets)}
-  Available IRS: {len(all_irs)}  |  Installed IRS: {len(installed_irs)}
-  Output Presets Folder: {ee_dir_display}
-  Convolver Folder: {convolver_dir_display}
+[bold #ff007f]✦ Quick Stats ✦[/]
+  [#00ffcc]🎧 Presets:[/] {len(all_presets)} available / [green]{len(installed_presets)} installed[/]
+  [#00ffcc]💿 IRS Data:[/] {len(all_irs)} available / [green]{len(installed_irs)} installed[/]
+  [dim]📂 Presets Dir: {ee_dir_display}[/]
+  [dim]📂 Conv Dir: {convolver_dir_display}[/]
 
-[bold]---[/bold] [yellow]Menu Options[/yellow] [bold]---[/bold]
+[bold #ff007f]✦ Command Center ✦[/]
 
-  [green]1[/green]  Browse & Preview Presets (EQ)
-  [green]2[/green]  Browse & Preview IRS (Convolution)
-  [green]3[/green]  Install Preset(s)
-  [green]4[/green]  Install IRS(s)
-  [green]5[/green]  View Installed (Presets + IRS)
-  [green]6[/green]  Remove Preset(s)/IRS(s)
-  [green]7[/green]  Update projectpulsewire
-  [green]8[/green]  Help & Commands
-  [green]9[/green]  Exit
-    """, title="[bold cyan]projectpulsewire Menu[/bold cyan]", border_style="cyan", padding=(1, 2)))
-    console.print("[dim]--- Copyright 2026 Zenith Open Source Projects | Developer: roshhellwett ---[/dim]")
+  [bold white on #ff007f] 1 [/]  [bold]Browse & Preview Presets (EQ)[/]
+  [bold white on #ff007f] 2 [/]  [bold]Browse & Preview IRS (Convolution)[/]
+  [bold white on #8a2be2] 3 [/]  [bold]Install Preset(s)[/]  🚀
+  [bold white on #8a2be2] 4 [/]  [bold]Install IRS(s)[/]  🚀
+  [bold white on #00ffcc] 5 [/]  [bold]View Installed Files[/]  ✨
+  [bold white on #ff4444] 6 [/]  [bold]Remove Preset(s)/IRS(s)[/]  🗑️
+  [bold white on #ffa500] 7 [/]  [bold]Update projectpulsewire[/]  ⚡
+  [bold white on #555555] 8 [/]  [bold]Help & Commands[/]  💡
+  [bold white on #555555] 9 [/]  [bold]Exit[/]  🚪
+    """
     
-    choice = safe_input("\n>> Enter your choice (1-9): ", allow_empty=False)
+    console.print(Panel(
+        panel_content, 
+        title="[bold #00ffcc] PROJECT PULSEWIRE PRO [/]", 
+        border_style="#ff007f", 
+        padding=(1, 3),
+        box=box.ROUNDED
+    ))
+    console.print("[dim italic]--- Premium Audio Made Free | Developer: roshhellwett ---[/dim italic]\n")
+    
+    choice = safe_input(">> [bold #ff007f]Enter your vibe (1-9):[/] ", allow_empty=False)
     return choice
 
 def handle_browse_presets() -> None:
@@ -139,17 +154,16 @@ def handle_browse_presets() -> None:
     
     while True:
         console.clear()
-        console.print("\n[bold cyan]--- Browse Presets ---[/bold cyan]\n")
+        console.print(Panel("[bold #00ffcc]🎧 Vibes & Aesthetics Database[/]", border_style="#00ffcc", expand=False))
         
-        console.print("[bold]Categories:[/bold]")
         for i, cat in enumerate(cat_list, 1):
             count = len(categories[cat])
-            console.print(f"  [cyan]{i}[/cyan]  {cat} ({count} presets)")
-        console.print(f"  [cyan]A[/cyan]  All Presets ({len(all_presets)})")
-        console.print(f"  [cyan]I[/cyan]  Installed Only ({len(installed)})")
-        console.print("  [cyan]B[/cyan]  Back to main menu")
+            console.print(f"  [bold white on #8a2be2] {i} [/]  [#ff007f]{cat}[/] [dim]({count} presets)[/]")
+        console.print(f"  [bold white on #8a2be2] A [/]  [#ff007f]All Presets[/] [dim]({len(all_presets)})[/]")
+        console.print(f"  [bold white on #8a2be2] I [/]  [#ff007f]Installed Only[/] [dim]({len(installed)})[/]")
+        console.print("  [bold white on #555555] B [/]  [bold]Back to Command Center[/]")
         
-        choice = safe_input("\n>> Select category (number/A/I/B): ").strip().lower()
+        choice = safe_input("\n>> [bold #00ffcc]Select category:[/] ").strip().lower()
         
         if choice == "b":
             return
@@ -184,14 +198,14 @@ def handle_browse_presets() -> None:
             console.clear()
             console.print(f"\n[bold cyan]--- {title} ---[/bold cyan]\n")
             
-            table = Table(show_header=True, header_style="bold magenta", box=None)
-            table.add_column("#", style="dim", width=5)
-            table.add_column("Preset Name", style="cyan")
-            table.add_column("Status", style="yellow", width=12)
+            table = Table(show_header=True, header_style="bold #ff007f", box=box.ROUNDED, border_style="#00ffcc")
+            table.add_column("#", style="bold white on #8a2be2", width=5, justify="center")
+            table.add_column("✨ Preset Name", style="bold white")
+            table.add_column("Status", style="dim", width=16)
             
             for i, preset in enumerate(selected_presets, 1):
-                status = "[green]Installed[/green]" if preset["name"] in installed else "[dim]Not installed[/dim]"
-                table.add_row(f"[cyan]{i}[/cyan]", f"[green]{preset['name']}[/green]", status)
+                status = "✅ [bold #00ffaa]Installed[/]" if preset["name"] in installed else "⭕ [dim]Not installed[/dim]"
+                table.add_row(str(i), f"[#00ffcc]{preset['name']}[/]", status)
             
             console.print(table)
             
@@ -235,13 +249,12 @@ def show_preset_preview(preset: dict) -> None:
     plugins_order = output.get("plugins_order", [])
     
     console.print(Panel(f"""
-[bold cyan]{name}[/bold cyan]
+[bold #00ffcc]🎧 {name}[/]
 
-[yellow]Status:[/yellow] {'[green]Installed[/green]' if installed else '[dim]Not installed[/dim]'}
+[#ff007f]Status:[/] {'✅ [bold #00ffaa]Installed[/]' if installed else '⭕ [dim]Not installed[/dim]'}
 
-[yellow]Plugins in this preset:[/yellow]
-{', '.join(plugins_order) if plugins_order else 'No plugins found'}
-    """, title="Preset Preview", border_style="cyan", padding=(1, 2)))
+[#8a2be2]Plugins included:[/]\n[dim]{', '.join(plugins_order) if plugins_order else 'No plugins found'}[/]
+    """, title="🔍 Preset Preview", border_style="#00ffcc", padding=(1, 2), box=box.ROUNDED))
 
 def handle_install_presets() -> None:
     all_presets = presets_module.get_all_presets()
@@ -255,14 +268,14 @@ def handle_install_presets() -> None:
     console.clear()
     console.print("\n[bold cyan]--- Install Preset(s) ---[/bold cyan]\n")
     
-    table = Table(show_header=True, header_style="bold magenta", box=None)
-    table.add_column("#", style="dim", width=5)
-    table.add_column("Preset Name", style="cyan")
-    table.add_column("Status", style="yellow", width=15)
+    table = Table(show_header=True, header_style="bold #8a2be2", box=box.ROUNDED, border_style="#ff007f")
+    table.add_column("#", style="bold white on #ff007f", width=5, justify="center")
+    table.add_column("🚀 Preset Name", style="bold white")
+    table.add_column("Status", style="dim", width=16)
     
     for i, preset in enumerate(all_presets, 1):
-        status = "[green]Installed[/green]" if preset["name"] in installed else "[dim]Not installed[/dim]"
-        table.add_row(f"[cyan]{i}[/cyan]", f"[green]{preset['name']}[/green]", status)
+        status = "✅ [bold #00ffaa]Installed[/]" if preset["name"] in installed else "⭕ [dim]Ready to install[/dim]"
+        table.add_row(str(i), f"[#00ffcc]{preset['name']}[/]", status)
     
     console.print(table)
     
@@ -405,45 +418,45 @@ def handle_view_installed() -> None:
     installed_irs = irs_module.get_installed_irs()
     
     console.clear()
-    console.print("\n[bold cyan]--- Installed Items ---[/bold cyan]\n")
+    console.print(Panel("[bold #00ffcc]✨ Installed Vibes & Convolvers[/]", border_style="#00ffcc", expand=False))
     
     ee_dir = presets_module.get_easyeffects_presets_dir()
     convolver_dir = irs_module.get_easyeffects_convolver_dir()
     
-    console.print(f"[dim]Output Presets Folder: {ee_dir}[/dim]")
-    console.print(f"[dim]Convolver Folder: {convolver_dir}[/dim]\n")
+    console.print(f"[dim]📂 Output Presets:[/] {ee_dir}")
+    console.print(f"[dim]📂 IRS Convolvers:[/] {convolver_dir}\n")
     
     if not installed_presets and not installed_irs:
-        console.print("[yellow]No presets or IRS files installed yet.[/yellow]")
-        console.print("[dim]Use 'Install Preset(s)' or 'Install IRS(s)' to add files to EasyEffects.[/dim]")
+        console.print("[bold #ff4444]💀 It's empty in here...[/]")
+        console.print("[dim]Use 'Install Preset(s)' or 'Install IRS(s)' to inject some flavor.[/dim]")
         pause_for_user()
         return
     
     if installed_presets:
-        console.print(f"[bold magenta]--- Presets ({len(installed_presets)}) ---[/bold magenta]\n")
-        table = Table(show_header=True, header_style="bold magenta", box=None)
-        table.add_column("#", style="dim", width=5)
-        table.add_column("Preset Name", style="cyan")
+        console.print(f"[bold #ff007f]✦ Presets ({len(installed_presets)}) ✦[/]\n")
+        table = Table(show_header=True, header_style="bold #ff007f", box=box.ROUNDED, border_style="#8a2be2")
+        table.add_column("#", style="bold white on #ff007f", width=5, justify="center")
+        table.add_column("🎧 Preset Name", style="bold white")
         
         for i, name in enumerate(installed_presets, 1):
-            table.add_row(f"[cyan]{i}[/cyan]", f"[green]{name}[/green]")
+            table.add_row(str(i), f"[#00ffcc]{name}[/]")
         
         console.print(table)
         console.print()
     
     if installed_irs:
-        console.print(f"[bold magenta]--- IRS Files ({len(installed_irs)}) ---[/bold magenta]\n")
-        table = Table(show_header=True, header_style="bold magenta", box=None)
-        table.add_column("#", style="dim", width=5)
-        table.add_column("IRS Name", style="cyan")
+        console.print(f"[bold #8a2be2]✦ IRS Files ({len(installed_irs)}) ✦[/]\n")
+        table = Table(show_header=True, header_style="bold #8a2be2", box=box.ROUNDED, border_style="#00ffcc")
+        table.add_column("#", style="bold white on #8a2be2", width=5, justify="center")
+        table.add_column("💿 IRS Name", style="bold white")
         
         for i, name in enumerate(installed_irs, 1):
-            table.add_row(f"[cyan]{i}[/cyan]", f"[green]{name}[/green]")
+            table.add_row(str(i), f"[#ff007f]{name}[/]")
         
         console.print(table)
         console.print()
     
-    console.print(f"[dim]Total: {len(installed_presets)} preset(s), {len(installed_irs)} IRS file(s) installed[/dim]")
+    console.print(f"[dim]Total Status: {len(installed_presets)} preset(s) and {len(installed_irs)} IRS file(s) installed like a pro.[/dim]")
     pause_for_user()
 
 def handle_remove_items() -> None:
@@ -456,14 +469,14 @@ def handle_remove_items() -> None:
         return
     
     console.clear()
-    console.print("\n[bold cyan]--- Remove Preset(s) or IRS(s) ---[/bold cyan]\n")
+    console.print(Panel("[bold #ff4444]🗑️ Deletion Center[/]", border_style="#ff4444", expand=False))
     
-    console.print("[bold]--- Select Type ---[/bold]")
-    console.print("  [cyan]1[/cyan]  Remove Preset(s)")
-    console.print("  [cyan]2[/cyan]  Remove IRS(s)")
-    console.print("  [cyan]B[/cyan]  Back to main menu")
+    console.print("[bold #ff4444]✦ Select Target ✦[/]")
+    console.print("  [bold white on #ff4444] 1 [/]  [bold]Remove Preset(s)[/]")
+    console.print("  [bold white on #ff4444] 2 [/]  [bold]Remove IRS(s)[/]")
+    console.print("  [bold white on #555555] B [/]  [bold]Back to Command Center[/]")
     
-    choice = safe_input("\n>> Select option: ").strip().lower()
+    choice = safe_input("\n>> [bold #ff4444]Select option:[/] ").strip().lower()
     
     if choice == "b":
         return
@@ -483,24 +496,24 @@ def handle_remove_presets_menu(installed_presets: list) -> None:
         return
     
     console.clear()
-    console.print("\n[bold cyan]--- Remove Preset(s) ---[/bold cyan]\n")
+    console.print(Panel("[bold #ff4444]🗑️ Remove Preset(s)[/]", border_style="#ff4444", expand=False))
     
-    table = Table(show_header=True, header_style="bold magenta", box=None)
-    table.add_column("#", style="dim", width=5)
-    table.add_column("Preset Name", style="cyan")
+    table = Table(show_header=True, header_style="bold #ff007f", box=box.ROUNDED, border_style="#8a2be2")
+    table.add_column("#", style="bold white on #ff4444", width=5, justify="center")
+    table.add_column("🎧 Preset Name", style="bold white")
     
     for i, name in enumerate(installed_presets, 1):
-        table.add_row(f"[cyan]{i}[/cyan]", f"[green]{name}[/green]")
+        table.add_row(str(i), f"[#00ffcc]{name}[/]")
     
     console.print(table)
     
-    console.print("\n[bold]--- Removal Options ---[/bold]")
-    console.print("  [cyan]1[/cyan]  Remove single preset")
-    console.print("  [cyan]2[/cyan]  Remove multiple presets (e.g., 1,2,3)")
-    console.print("  [cyan]3[/cyan]  Remove all presets")
-    console.print("  [cyan]B[/cyan]  Back")
+    console.print("\n[bold #ff4444]✦ Options ✦[/]")
+    console.print("  [bold white on #ff4444] 1 [/]  [bold]Remove single preset[/]")
+    console.print("  [bold white on #ff4444] 2 [/]  [bold]Remove multiple presets (e.g., 1,2,3)[/]")
+    console.print("  [bold white on #ff007f] 3 [/]  [bold]Nuke all presets[/]")
+    console.print("  [bold white on #555555] B [/]  [bold]Back to safety[/]")
     
-    choice = safe_input("\n>> Select option: ").strip().lower()
+    choice = safe_input("\n>> [bold #ff4444]Select option:[/] ").strip().lower()
     
     if choice == "b" or choice == "":
         return
@@ -615,24 +628,24 @@ def handle_remove_irs_menu(installed_irs: list) -> None:
         return
     
     console.clear()
-    console.print("\n[bold cyan]--- Remove IRS(s) ---[/bold cyan]\n")
+    console.print(Panel("[bold #ff4444]🗑️ Remove IRS Convolvers[/]", border_style="#ff4444", expand=False))
     
-    table = Table(show_header=True, header_style="bold magenta", box=None)
-    table.add_column("#", style="dim", width=5)
-    table.add_column("IRS Name", style="cyan")
+    table = Table(show_header=True, header_style="bold #8a2be2", box=box.ROUNDED, border_style="#ff007f")
+    table.add_column("#", style="bold white on #ff4444", width=5, justify="center")
+    table.add_column("💿 IRS Name", style="bold white")
     
     for i, name in enumerate(installed_irs, 1):
-        table.add_row(f"[cyan]{i}[/cyan]", f"[green]{name}[/green]")
+        table.add_row(str(i), f"[#00ffcc]{name}[/]")
     
     console.print(table)
     
-    console.print("\n[bold]--- Removal Options ---[/bold]")
-    console.print("  [cyan]1[/cyan]  Remove single IRS")
-    console.print("  [cyan]2[/cyan]  Remove multiple IRS (e.g., 1,2,3)")
-    console.print("  [cyan]3[/cyan]  Remove all IRS")
-    console.print("  [cyan]B[/cyan]  Back")
+    console.print("\n[bold #ff4444]✦ Options ✦[/]")
+    console.print("  [bold white on #ff4444] 1 [/]  [bold]Remove single IRS[/]")
+    console.print("  [bold white on #ff4444] 2 [/]  [bold]Remove multiple IRS (e.g., 1,2,3)[/]")
+    console.print("  [bold white on #ff007f] 3 [/]  [bold]Nuke all IRS[/]")
+    console.print("  [bold white on #555555] B [/]  [bold]Back to safety[/]")
     
-    choice = safe_input("\n>> Select option: ").strip().lower()
+    choice = safe_input("\n>> [bold #ff4444]Select option:[/] ").strip().lower()
     
     if choice == "b" or choice == "":
         return
@@ -766,17 +779,16 @@ def handle_browse_irs() -> None:
     
     while True:
         console.clear()
-        console.print("\n[bold cyan]--- Browse IRS Files ---[/bold cyan]\n")
+        console.print(Panel("[bold #00ffcc]💿 IRS Convolvers Database[/]", border_style="#00ffcc", expand=False))
         
-        console.print("[bold]Categories:[/bold]")
         for i, cat in enumerate(cat_list, 1):
             count = len(categories[cat])
-            console.print(f"  [cyan]{i}[/cyan]  {cat} ({count} IRS)")
-        console.print(f"  [cyan]A[/cyan]  All IRS ({len(all_irs)})")
-        console.print(f"  [cyan]I[/cyan]  Installed Only ({len(installed_irs)})")
-        console.print("  [cyan]B[/cyan]  Back to main menu")
+            console.print(f"  [bold white on #8a2be2] {i} [/]  [#ff007f]{cat}[/] [dim]({count} IRS)[/]")
+        console.print(f"  [bold white on #8a2be2] A [/]  [#ff007f]All IRS[/] [dim]({len(all_irs)})[/]")
+        console.print(f"  [bold white on #8a2be2] I [/]  [#ff007f]Installed Only[/] [dim]({len(installed_irs)})[/]")
+        console.print("  [bold white on #555555] B [/]  [bold]Back to Command Center[/]")
         
-        choice = safe_input("\n>> Select category (number/A/I/B): ").strip().lower()
+        choice = safe_input("\n>> [bold #00ffcc]Select category:[/] ").strip().lower()
         
         if choice == "b":
             return
@@ -811,17 +823,17 @@ def handle_browse_irs() -> None:
             console.clear()
             console.print(f"\n[bold cyan]--- {title} ---[/bold cyan]\n")
             
-            table = Table(show_header=True, header_style="bold magenta", box=None)
-            table.add_column("#", style="dim", width=5)
-            table.add_column("IRS Name", style="cyan")
-            table.add_column("Status", style="yellow", width=15)
+            table = Table(show_header=True, header_style="bold #ff007f", box=box.ROUNDED, border_style="#00ffcc")
+            table.add_column("#", style="bold white on #8a2be2", width=5, justify="center")
+            table.add_column("💿 IRS Name", style="bold white")
+            table.add_column("Status", style="dim", width=16)
             table.add_column("Size", style="dim", width=10)
             
             for i, irs in enumerate(selected_irs, 1):
-                status = "[green]Installed[/green]" if irs["name"] in installed_irs else "[dim]Not installed[/dim]"
+                status = "✅ [bold #00ffaa]Installed[/]" if irs["name"] in installed_irs else "⭕ [dim]Not installed[/dim]"
                 size_kb = irs.get("size", 0) // 1024
                 size_str = f"{size_kb} KB" if size_kb > 0 else "Unknown"
-                table.add_row(f"[cyan]{i}[/cyan]", f"[green]{irs['name']}[/green]", status, size_str)
+                table.add_row(str(i), f"[#00ffcc]{irs['name']}[/]", status, size_str)
             
             console.print(table)
             
@@ -864,14 +876,14 @@ def show_irs_preview(irs_file: dict) -> None:
     size_str = f"{size_kb} KB" if size_kb > 0 else "Unknown"
     
     console.print(Panel(f"""
-[bold cyan]{name}[/bold cyan]
+[bold #00ffcc]💿 {name}[/]
 
-[yellow]Status:[/yellow] {'[green]Installed[/green]' if installed else '[dim]Not installed[/dim]'}
-[yellow]File Size:[/yellow] {size_str}
+[#ff007f]Status:[/] {'✅ [bold #00ffaa]Installed[/]' if installed else '⭕ [dim]Not installed[/dim]'}
+[#ff007f]Size:[/] {size_str}
 
-[dim]This is an Impulse Response file for EasyEffects Convolver plugin.[/dim]
-[dim]IRS files create reverb effects and room correction.[/dim]
-    """, title="IRS Preview", border_style="cyan", padding=(1, 2)))
+[dim italic]This is an Impulse Response file for EasyEffects Convolver plugin.[/]
+[dim italic]IRS files inject reverb magic and room correction into your audio.[/]
+    """, title="🔍 IRS Preview", border_style="#00ffcc", padding=(1, 2), box=box.ROUNDED))
 
 def handle_install_irs() -> None:
     all_irs = irs_module.get_all_irs()
@@ -883,19 +895,19 @@ def handle_install_irs() -> None:
         return
     
     console.clear()
-    console.print("\n[bold cyan]--- Install IRS(s) ---[/bold cyan]\n")
+    console.print(Panel("[bold #00ffcc]🚀 Install IRS Convolvers[/]", border_style="#00ffcc", expand=False))
     
-    table = Table(show_header=True, header_style="bold magenta", box=None)
-    table.add_column("#", style="dim", width=5)
-    table.add_column("IRS Name", style="cyan")
-    table.add_column("Status", style="yellow", width=15)
+    table = Table(show_header=True, header_style="bold #8a2be2", box=box.ROUNDED, border_style="#ff007f")
+    table.add_column("#", style="bold white on #ff007f", width=5, justify="center")
+    table.add_column("🚀 IRS Name", style="bold white")
+    table.add_column("Status", style="dim", width=16)
     table.add_column("Size", style="dim", width=10)
     
     for i, irs in enumerate(all_irs, 1):
-        status = "[green]Installed[/green]" if irs["name"] in installed_irs else "[dim]Not installed[/dim]"
+        status = "✅ [bold #00ffaa]Installed[/]" if irs["name"] in installed_irs else "⭕ [dim]Ready to install[/dim]"
         size_kb = irs.get("size", 0) // 1024
         size_str = f"{size_kb} KB" if size_kb > 0 else "Unknown"
-        table.add_row(f"[cyan]{i}[/cyan]", f"[green]{irs['name']}[/green]", status, size_str)
+        table.add_row(str(i), f"[#00ffcc]{irs['name']}[/]", status, size_str)
     
     console.print(table)
     
