@@ -127,6 +127,8 @@ def get_presets_by_category(presets: List[Dict]) -> Dict[str, List[Dict]]:
                     categories[category].append(preset)
                     categorized = True
                     break
+            if categorized:
+                break
         
         if not categorized:
             if "Other" not in categories:
