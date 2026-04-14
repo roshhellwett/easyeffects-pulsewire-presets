@@ -20,6 +20,7 @@ from rich import box
 from projectpulsewire import __version__
 from projectpulsewire import presets as presets_module
 from projectpulsewire import irs_handler as irs_module
+from projectpulsewire import deps_installer
 
 logging.basicConfig(level=logging.INFO, format="%(levelname)s: %(message)s")
 logger = logging.getLogger(__name__)
@@ -113,7 +114,9 @@ def show_main_menu() -> str:
   [bold white on #ff4444] 6 [/]  [bold]Remove Preset(s)/IRS(s)[/]  🗑️
   [bold white on #ffa500] 7 [/]  [bold]Update projectpulsewire[/]  ⚡
   [bold white on #555555] 8 [/]  [bold]Help & Commands[/]  💡
-  [bold white on #555555] 9 [/]  [bold]Exit[/]  🚪
+  [bold white on #00bfff] 9 [/]  [bold]IRS Guide (What are IRS files?)[/]  🎓
+  [bold white on #7b68ee] 10 [/] [bold]Setup Audio Stack (Auto-Install)[/]  🔧
+  [bold white on #555555] 0 [/]  [bold]Exit[/]  🚪
     """
     
     console.print(Panel(
@@ -125,7 +128,7 @@ def show_main_menu() -> str:
     ))
     console.print("[dim italic]--- Premium Audio Made Free | Developer: roshhellwett ---[/dim italic]\n")
     
-    choice = safe_input(">> [bold #ff007f]Enter your vibe (1-9):[/] ", allow_empty=False)
+    choice = safe_input(">> [bold #ff007f]Enter your vibe (0-10):[/] ", allow_empty=False)
     return choice
 
 def handle_browse_presets() -> None:
@@ -874,16 +877,29 @@ def show_irs_preview(irs_file: dict) -> None:
     
     size_kb = irs_file.get("size", 0) // 1024
     size_str = f"{size_kb} KB" if size_kb > 0 else "Unknown"
+    use_guide = irs_module.get_irs_use_guide(name)
     
     console.print(Panel(f"""
 [bold #00ffcc]💿 {name}[/]
 
 [#ff007f]Status:[/] {'✅ [bold #00ffaa]Installed[/]' if installed else '⭕ [dim]Not installed[/dim]'}
 [#ff007f]Size:[/] {size_str}
+[#ff007f]Use Case:[/] {use_guide}
 
-[dim italic]This is an Impulse Response file for EasyEffects Convolver plugin.[/]
-[dim italic]IRS files inject reverb magic and room correction into your audio.[/]
-    """, title="🔍 IRS Preview", border_style="#00ffcc", padding=(1, 2), box=box.ROUNDED))
+[bold #ffa500]🎓 What is an IRS file?[/]
+[dim]An Impulse Response (IRS) captures the sonic signature of a real
+acoustic space or audio device. When loaded into EasyEffects'
+Convolver plugin, it shapes your audio to sound like it's being
+played through that space/device.[/]
+
+[bold #00ccff]🏛️ How to use this IRS in EasyEffects:[/]
+[dim]1. Install this IRS file using option 4 from the main menu
+2. Open EasyEffects -> Output Effects tab
+3. Click "Add Effect" -> Select "Convolver"
+4. In Convolver settings, click the import/file icon
+5. Browse to your IRS directory and select the .irs file
+6. IMPORTANT: Add a Limiter AFTER the Convolver to prevent clipping[/]
+    """, title="🔍 IRS Preview & Guide", border_style="#00ffcc", padding=(1, 2), box=box.ROUNDED))
 
 def handle_install_irs() -> None:
     all_irs = irs_module.get_all_irs()
@@ -1118,6 +1134,187 @@ def handle_update() -> None:
     console.print("\n[dim]--- Copyright 2026 Zenith Open Source Projects ---[/dim]")
     pause_for_user()
 
+def handle_irs_guide() -> None:
+    """Comprehensive IRS education screen."""
+    console.clear()
+    console.print(Panel(f"""
+[bold #ffa500]🎓 What are IRS (Impulse Response) Files?[/]
+
+[bold white]An IRS file captures the sonic fingerprint of a real acoustic space
+or audio device.[/] When loaded into EasyEffects' [bold #00ffcc]Convolver[/] plugin,
+it reshapes your audio to sound like it's being played through that
+space or device.
+
+[bold #ff007f]Think of it like Instagram filters, but for your ears![/]
+
+
+[bold #00ccff]📁 Where are IRS files installed?[/]
+
+  [dim]• Native install:[/]  [green]~/.config/easyeffects/irs/[/]
+  [dim]• Flatpak install:[/] [green]~/.var/app/com.github.wwmm.easyeffects/config/easyeffects/irs/[/]
+
+
+[bold #00ccff]🏛️ Step-by-Step: How to Use IRS in EasyEffects[/]
+
+  [bold white]Step 1:[/] Install an IRS file using [bold]option 4[/] from the main menu
+  [bold white]Step 2:[/] Open [bold #00ffcc]EasyEffects[/] application
+  [bold white]Step 3:[/] Go to [bold]Output Effects[/] tab
+  [bold white]Step 4:[/] Click [bold]"Add Effect"[/] -> Select [bold]"Convolver"[/]
+  [bold white]Step 5:[/] In the Convolver settings, click the [bold]import/file icon[/]
+  [bold white]Step 6:[/] Browse to your IRS directory and select the [bold].irs[/] file
+  [bold white]Step 7:[/] The Convolver is now processing your audio!
+
+
+[bold #ff4444]⚠️ Important Tips:[/]
+
+  [dim]• Always add a [bold]Limiter[/] AFTER the Convolver to prevent clipping
+  • Some IRS files change volume significantly — adjust input/output gain
+  • Different IRS files suit different use cases:
+    [#00ffcc]▸[/] "Bass" IRS → Adds deep low-end to weak speakers
+    [#00ffcc]▸[/] "Dolby" IRS → Surround sound on stereo headphones
+    [#00ffcc]▸[/] "DFX" IRS → General audio enhancement & clarity
+    [#00ffcc]▸[/] "Creative" IRS → Gaming 3D audio & spatial sound
+    [#00ffcc]▸[/] "XHR" IRS → High-resolution clarity improvement[/]
+
+[dim]--- Copyright 2026 Zenith Open Source Projects | Developer: roshhellwett ---[/dim]
+    """, title="[bold #ffa500] 🎓 IRS Guide — Complete Tutorial [/]", border_style="#ffa500", padding=(1, 3), box=box.ROUNDED))
+    pause_for_user()
+
+
+def handle_setup_audio() -> None:
+    """Auto-detect and optionally install Linux audio dependencies."""
+    console.clear()
+    
+    distro_family, distro_name = deps_installer.detect_distro()
+    
+    console.print(Panel(f"""
+[bold #00ffcc]🔧 Audio Stack Setup — Auto-Dependency Installer[/]
+
+[#ff007f]Detected OS:[/] {distro_name}
+[#ff007f]Distro Family:[/] {distro_family.upper()}
+
+[dim]Scanning for essential audio packages...[/dim]
+    """, title="[bold #7b68ee] 🔧 Audio Stack Setup [/]", border_style="#7b68ee", padding=(1, 3), box=box.ROUNDED))
+    
+    if distro_family == "unknown":
+        print_error_context(
+            "Could not detect your Linux distribution",
+            "The file /etc/os-release was not found or could not be parsed",
+            "You may need to install audio packages manually for your distribution"
+        )
+        pause_for_user()
+        return
+    
+    # Check all packages
+    status_list = deps_installer.get_all_package_status(distro_family)
+    
+    table = Table(
+        show_header=True,
+        header_style="bold #ff007f",
+        box=box.ROUNDED,
+        border_style="#7b68ee",
+        title="[bold]Audio Stack Dependencies[/]"
+    )
+    table.add_column("Package", style="bold white", min_width=20)
+    table.add_column("Status", width=14, justify="center")
+    table.add_column("Priority", width=12, justify="center")
+    table.add_column("Description", style="dim")
+    table.add_column("Package Name", style="dim #888888")
+    
+    missing_critical = []
+    missing_optional = []
+    
+    for pkg in status_list:
+        if pkg["installed"]:
+            status = "✅ Installed"
+        else:
+            status = "❌ Missing"
+        
+        priority = "[bold #ff4444]CRITICAL[/]" if pkg["critical"] else "[#ffa500]Recommended[/]"
+        
+        table.add_row(
+            f"[#00ffcc]{pkg['name']}[/]",
+            status,
+            priority,
+            pkg["description"],
+            pkg["pkg_name"]
+        )
+        
+        if not pkg["installed"]:
+            if pkg["critical"]:
+                missing_critical.append(pkg["pkg_name"])
+            else:
+                missing_optional.append(pkg["pkg_name"])
+    
+    console.print(table)
+    console.print()
+    
+    # Check PipeWire status
+    pw_running = deps_installer.check_pipewire_running()
+    if pw_running:
+        console.print("  [✅] [bold #00ffaa]PipeWire is running as your audio server[/]")
+    else:
+        console.print("  [❌] [bold #ff4444]PipeWire is NOT detected as your audio server[/]")
+        console.print("      [dim]You may be running PulseAudio directly. PipeWire is recommended.[/dim]")
+    
+    # Check EasyEffects version
+    ee_version = deps_installer.check_easyeffects_version()
+    if ee_version:
+        console.print(f"  [✅] [bold #00ffaa]EasyEffects version: {ee_version}[/]")
+    
+    console.print()
+    
+    # Show install commands if packages are missing
+    all_missing = missing_critical + missing_optional
+    
+    if not all_missing:
+        print_success(
+            "All audio packages are installed!",
+            "Your Linux audio stack is fully configured. Enjoy premium sound!"
+        )
+    else:
+        if missing_critical:
+            console.print(f"[bold #ff4444]Missing critical packages ({len(missing_critical)}):[/] {', '.join(missing_critical)}")
+        if missing_optional:
+            console.print(f"[bold #ffa500]Missing recommended packages ({len(missing_optional)}):[/] {', '.join(missing_optional)}")
+        
+        console.print()
+        
+        # Show the install command
+        install_cmd = deps_installer.get_install_command(distro_family, all_missing)
+        if install_cmd:
+            console.print(Panel(f"""
+[bold #00ccff]Run this command to install all missing packages:[/]
+
+[bold green]{install_cmd}[/]
+
+[dim]Copy and paste this into your terminal. You will need sudo/admin access.[/dim]
+            """, title="[bold] 📝 Install Command [/]", border_style="#00ccff", box=box.ROUNDED))
+        
+        # Ask if user wants to auto-install
+        try:
+            do_install = Confirm.ask(
+                "\n[bold]Would you like to install missing packages now?[/]",
+                default=False
+            )
+            if do_install:
+                console.print("\n[dim]Running package manager (may ask for sudo password)...[/dim]\n")
+                success, message = deps_installer.install_missing_packages(distro_family, all_missing)
+                if success:
+                    print_success("Packages installed successfully!", message)
+                else:
+                    print_error_context(
+                        "Installation encountered issues",
+                        message,
+                        f"Try running manually: {install_cmd}"
+                    )
+        except (KeyboardInterrupt, EOFError):
+            console.print("\n[dim]Skipped installation.[/dim]")
+    
+    console.print("\n[dim]--- Copyright 2026 Zenith Open Source Projects ---[/dim]")
+    pause_for_user()
+
+
 def handle_help() -> None:
     console.print(f"""
 [bold cyan]--- Help & Commands ---[/bold cyan]
@@ -1131,6 +1328,7 @@ def handle_help() -> None:
   [green]python -m projectpulsewire installed[/green]    List installed presets & IRS
   [green]python -m projectpulsewire remove <name>[/green]  Remove a preset
   [green]python -m projectpulsewire remove-irs <name>[/green] Remove an IRS
+  [green]python -m projectpulsewire setup[/green]          Setup audio stack (install dependencies)
   [green]python -m projectpulsewire update[/green]        Check for updates
   [green]python -m projectpulsewire --help[/green]         Show all options
   [green]python -m projectpulsewire --version[/green]      Show version
@@ -1139,12 +1337,19 @@ def handle_help() -> None:
   [green]pip install projectpulsewire[/green]
 
 [bold yellow]How It Works:[/bold yellow]
-  [dim]• Output Presets → ~/.config/easyeffects/output/ (speakers/headphones)[/dim]
-  [dim]• Input Presets → ~/.config/easyeffects/input/ (microphone)[/dim]
-  [dim]• IRS Files → ~/.config/easyeffects/irs/ (Convolver impulse responses)[/dim]
+  [dim]• Output Presets -> ~/.config/easyeffects/output/ (speakers/headphones)[/dim]
+  [dim]• Input Presets -> ~/.config/easyeffects/input/ (microphone)[/dim]
+  [dim]• IRS Files -> ~/.config/easyeffects/irs/ (Convolver impulse responses)[/dim]
+  [dim]• Flatpak: ~/.var/app/com.github.wwmm.easyeffects/config/easyeffects/[/dim]
   [dim]• Restart EasyEffects after installing new items[/dim]
   [dim]• Find presets in EasyEffects preset manager[/dim]
   [dim]• Find IRS in EasyEffects Convolver plugin[/dim]
+
+[bold yellow]🎓 IRS Quick Guide:[/bold yellow]
+  [dim]• IRS = Impulse Response files for the Convolver effect[/dim]
+  [dim]• They shape your audio like an Instagram filter for sound[/dim]
+  [dim]• Install via menu option 4, then load in EasyEffects Convolver[/dim]
+  [dim]• Use menu option 9 for the full IRS guide & tutorial[/dim]
 
 [dim]--- Copyright 2026 Zenith Open Source Projects | Developer: roshhellwett ---[/dim]
     """)
@@ -1172,11 +1377,15 @@ def main_menu_loop() -> None:
             elif choice == "8":
                 handle_help()
             elif choice == "9":
+                handle_irs_guide()
+            elif choice == "10":
+                handle_setup_audio()
+            elif choice == "0":
                 console.print("\n[cyan]Thank you for using projectpulsewire![/cyan]")
                 console.print("[dim]--- Copyright 2026 Zenith Open Source Projects | Developer: roshhellwett ---[/dim]\n")
                 break
             else:
-                console.print(f"\n[red]Invalid choice '{choice}'. Please enter 1-9.[/red]")
+                console.print(f"\n[red]Invalid choice '{choice}'. Please enter 0-10.[/red]")
                 pause_for_user()
         except KeyboardInterrupt:
             console.print("\n\n[cyan]Goodbye![/cyan]")
@@ -1396,6 +1605,16 @@ def remove_irs(irs_name: str = typer.Argument(..., help="IRS name to remove")):
 def browse_irs():
     """Browse IRS files interactively."""
     handle_browse_irs()
+
+@app.command()
+def setup():
+    """Setup Linux audio stack — detect and install essential audio packages."""
+    handle_setup_audio()
+
+@app.command()
+def irs_guide():
+    """Show the IRS (Impulse Response) usage guide."""
+    handle_irs_guide()
 
 if __name__ == "__main__":
     app()

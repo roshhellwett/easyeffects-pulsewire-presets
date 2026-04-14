@@ -4,8 +4,8 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "projectpulsewire"
-version = "1.2.0"
-description = "A powerful CLI to install and manage EasyEffects presets for PipeWire/PulseAudio"
+version = "2.0.0"
+description = "Premium CLI to install and manage professionally-tuned EasyEffects presets, IRS files, and Linux audio dependencies"
 readme = "readme.md"
 license = "MIT"
 authors = [

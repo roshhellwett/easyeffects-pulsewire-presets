@@ -1,5 +1,13 @@
 {
     "output": {
+        "blocklist": [],
+        "plugins_order": [
+            "bass_loudness#0",
+            "compressor#0",
+            "equalizer#0",
+            "maximizer#0",
+            "limiter#0"
+        ],
         "bass_loudness#0": {
             "bypass": false,
             "input-gain": 0.0,
@@ -8,14 +16,44 @@
             "output": -9.5,
             "output-gain": 0.0
         },
-        "blocklist": [],
+        "compressor#0": {
+            "attack": 20.0,
+            "boost-amount": 6.0,
+            "boost-threshold": -72.0,
+            "bypass": false,
+            "dry": -100.0,
+            "hpf-frequency": 10.0,
+            "hpf-mode": "Off",
+            "input-gain": 0.0,
+            "knee": -12.0,
+            "lpf-frequency": 20000.0,
+            "lpf-mode": "Off",
+            "makeup": 1.5,
+            "mode": "Downward",
+            "output-gain": 0.0,
+            "ratio": 2.5,
+            "release": 200.0,
+            "release-threshold": -100.0,
+            "sidechain": {
+                "lookahead": 10.0,
+                "mode": "RMS",
+                "preamp": 0.0,
+                "reactivity": 10.0,
+                "source": "Middle",
+                "stereo-split-source": "Left/Right",
+                "type": "Feed-forward"
+            },
+            "stereo-split": false,
+            "threshold": -20.0,
+            "wet": 0.0
+        },
         "equalizer#0": {
             "balance": 0.0,
             "bypass": false,
-            "input-gain": 0.0,
+            "input-gain": -3.0,
             "left": {
                 "band0": {
-                    "frequency": 25.0,
+                    "frequency": 25,
                     "gain": 0.0,
                     "mode": "RLC (BT)",
                     "mute": false,
@@ -26,63 +64,8 @@
                     "width": 4.0
                 },
                 "band1": {
-                    "frequency": 40.0,
+                    "frequency": 40,
                     "gain": 1.5,
-                    "mode": "RLC (BT)",
-                    "mute": false,
-                    "q": 4.36,
-                    "slope": "x1",
-                    "solo": false,
-                    "type": "Bell",
-                    "width": 4.0
-                },
-                "band10": {
-                    "frequency": 2600.0,
-                    "gain": -1.5,
-                    "mode": "RLC (BT)",
-                    "mute": false,
-                    "q": 4.36,
-                    "slope": "x1",
-                    "solo": false,
-                    "type": "Bell",
-                    "width": 4.0
-                },
-                "band11": {
-                    "frequency": 4100.0,
-                    "gain": 0.5,
-                    "mode": "RLC (BT)",
-                    "mute": false,
-                    "q": 4.36,
-                    "slope": "x1",
-                    "solo": false,
-                    "type": "Bell",
-                    "width": 4.0
-                },
-                "band12": {
-                    "frequency": 6500.0,
-                    "gain": 1.5,
-                    "mode": "RLC (BT)",
-                    "mute": false,
-                    "q": 4.36,
-                    "slope": "x1",
-                    "solo": false,
-                    "type": "Bell",
-                    "width": 4.0
-                },
-                "band13": {
-                    "frequency": 10300.0,
-                    "gain": 2.0,
-                    "mode": "RLC (BT)",
-                    "mute": false,
-                    "q": 4.36,
-                    "slope": "x1",
-                    "solo": false,
-                    "type": "Bell",
-                    "width": 4.0
-                },
-                "band14": {
-                    "frequency": 16500.0,
-                    "gain": 0.5,
                     "mode": "RLC (BT)",
                     "mute": false,
                     "q": 4.36,
@@ -92,7 +75,7 @@
                     "width": 4.0
                 },
                 "band2": {
-                    "frequency": 65.0,
+                    "frequency": 65,
                     "gain": 3.0,
                     "mode": "RLC (BT)",
                     "mute": false,
@@ -103,7 +86,7 @@
                     "width": 4.0
                 },
                 "band3": {
-                    "frequency": 100.0,
+                    "frequency": 100,
                     "gain": 4.0,
                     "mode": "RLC (BT)",
                     "mute": false,
@@ -114,7 +97,7 @@
                     "width": 4.0
                 },
                 "band4": {
-                    "frequency": 160.0,
+                    "frequency": 160,
                     "gain": 4.5,
                     "mode": "RLC (BT)",
                     "mute": false,
@@ -125,7 +108,7 @@
                     "width": 4.0
                 },
                 "band5": {
-                    "frequency": 255.0,
+                    "frequency": 255,
                     "gain": 3.0,
                     "mode": "RLC (BT)",
                     "mute": false,
@@ -136,7 +119,7 @@
                     "width": 4.0
                 },
                 "band6": {
-                    "frequency": 410.0,
+                    "frequency": 410,
                     "gain": 0.5,
                     "mode": "RLC (BT)",
                     "mute": false,
@@ -147,7 +130,7 @@
                     "width": 4.0
                 },
                 "band7": {
-                    "frequency": 650.0,
+                    "frequency": 650,
                     "gain": -3.0,
                     "mode": "RLC (BT)",
                     "mute": false,
@@ -158,7 +141,7 @@
                     "width": 4.0
                 },
                 "band8": {
-                    "frequency": 1000.0,
+                    "frequency": 1000,
                     "gain": -5.0,
                     "mode": "RLC (BT)",
                     "mute": false,
@@ -169,8 +152,63 @@
                     "width": 4.0
                 },
                 "band9": {
-                    "frequency": 1600.0,
+                    "frequency": 1600,
                     "gain": -4.5,
+                    "mode": "RLC (BT)",
+                    "mute": false,
+                    "q": 4.36,
+                    "slope": "x1",
+                    "solo": false,
+                    "type": "Bell",
+                    "width": 4.0
+                },
+                "band10": {
+                    "frequency": 2600,
+                    "gain": -1.5,
+                    "mode": "RLC (BT)",
+                    "mute": false,
+                    "q": 4.36,
+                    "slope": "x1",
+                    "solo": false,
+                    "type": "Bell",
+                    "width": 4.0
+                },
+                "band11": {
+                    "frequency": 4100,
+                    "gain": 0.5,
+                    "mode": "RLC (BT)",
+                    "mute": false,
+                    "q": 4.36,
+                    "slope": "x1",
+                    "solo": false,
+                    "type": "Bell",
+                    "width": 4.0
+                },
+                "band12": {
+                    "frequency": 6500,
+                    "gain": 1.5,
+                    "mode": "RLC (BT)",
+                    "mute": false,
+                    "q": 4.36,
+                    "slope": "x1",
+                    "solo": false,
+                    "type": "Bell",
+                    "width": 4.0
+                },
+                "band13": {
+                    "frequency": 10300,
+                    "gain": 2.0,
+                    "mode": "RLC (BT)",
+                    "mute": false,
+                    "q": 4.36,
+                    "slope": "x1",
+                    "solo": false,
+                    "type": "Bell",
+                    "width": 4.0
+                },
+                "band14": {
+                    "frequency": 16500,
+                    "gain": 0.5,
                     "mode": "RLC (BT)",
                     "mute": false,
                     "q": 4.36,
@@ -182,12 +220,12 @@
             },
             "mode": "IIR",
             "num-bands": 15,
-            "output-gain": 0.0,
+            "output-gain": -2.0,
             "pitch-left": 0.0,
             "pitch-right": 0.0,
             "right": {
                 "band0": {
-                    "frequency": 25.0,
+                    "frequency": 25,
                     "gain": 0.0,
                     "mode": "RLC (BT)",
                     "mute": false,
@@ -198,63 +236,8 @@
                     "width": 4.0
                 },
                 "band1": {
-                    "frequency": 40.0,
+                    "frequency": 40,
                     "gain": 1.5,
-                    "mode": "RLC (BT)",
-                    "mute": false,
-                    "q": 4.36,
-                    "slope": "x1",
-                    "solo": false,
-                    "type": "Bell",
-                    "width": 4.0
-                },
-                "band10": {
-                    "frequency": 2600.0,
-                    "gain": -1.5,
-                    "mode": "RLC (BT)",
-                    "mute": false,
-                    "q": 4.36,
-                    "slope": "x1",
-                    "solo": false,
-                    "type": "Bell",
-                    "width": 4.0
-                },
-                "band11": {
-                    "frequency": 4100.0,
-                    "gain": 0.5,
-                    "mode": "RLC (BT)",
-                    "mute": false,
-                    "q": 4.36,
-                    "slope": "x1",
-                    "solo": false,
-                    "type": "Bell",
-                    "width": 4.0
-                },
-                "band12": {
-                    "frequency": 6500.0,
-                    "gain": 1.5,
-                    "mode": "RLC (BT)",
-                    "mute": false,
-                    "q": 4.36,
-                    "slope": "x1",
-                    "solo": false,
-                    "type": "Bell",
-                    "width": 4.0
-                },
-                "band13": {
-                    "frequency": 10300.0,
-                    "gain": 2.0,
-                    "mode": "RLC (BT)",
-                    "mute": false,
-                    "q": 4.36,
-                    "slope": "x1",
-                    "solo": false,
-                    "type": "Bell",
-                    "width": 4.0
-                },
-                "band14": {
-                    "frequency": 16500.0,
-                    "gain": 0.5,
                     "mode": "RLC (BT)",
                     "mute": false,
                     "q": 4.36,
@@ -264,7 +247,7 @@
                     "width": 4.0
                 },
                 "band2": {
-                    "frequency": 65.0,
+                    "frequency": 65,
                     "gain": 3.0,
                     "mode": "RLC (BT)",
                     "mute": false,
@@ -275,7 +258,7 @@
                     "width": 4.0
                 },
                 "band3": {
-                    "frequency": 100.0,
+                    "frequency": 100,
                     "gain": 4.0,
                     "mode": "RLC (BT)",
                     "mute": false,
@@ -286,7 +269,7 @@
                     "width": 4.0
                 },
                 "band4": {
-                    "frequency": 160.0,
+                    "frequency": 160,
                     "gain": 4.5,
                     "mode": "RLC (BT)",
                     "mute": false,
@@ -297,7 +280,7 @@
                     "width": 4.0
                 },
                 "band5": {
-                    "frequency": 255.0,
+                    "frequency": 255,
                     "gain": 3.0,
                     "mode": "RLC (BT)",
                     "mute": false,
@@ -308,7 +291,7 @@
                     "width": 4.0
                 },
                 "band6": {
-                    "frequency": 410.0,
+                    "frequency": 410,
                     "gain": 0.5,
                     "mode": "RLC (BT)",
                     "mute": false,
@@ -319,7 +302,7 @@
                     "width": 4.0
                 },
                 "band7": {
-                    "frequency": 650.0,
+                    "frequency": 650,
                     "gain": -3.0,
                     "mode": "RLC (BT)",
                     "mute": false,
@@ -330,7 +313,7 @@
                     "width": 4.0
                 },
                 "band8": {
-                    "frequency": 1000.0,
+                    "frequency": 1000,
                     "gain": -5.0,
                     "mode": "RLC (BT)",
                     "mute": false,
@@ -341,8 +324,63 @@
                     "width": 4.0
                 },
                 "band9": {
-                    "frequency": 1600.0,
+                    "frequency": 1600,
                     "gain": -4.5,
+                    "mode": "RLC (BT)",
+                    "mute": false,
+                    "q": 4.36,
+                    "slope": "x1",
+                    "solo": false,
+                    "type": "Bell",
+                    "width": 4.0
+                },
+                "band10": {
+                    "frequency": 2600,
+                    "gain": -1.5,
+                    "mode": "RLC (BT)",
+                    "mute": false,
+                    "q": 4.36,
+                    "slope": "x1",
+                    "solo": false,
+                    "type": "Bell",
+                    "width": 4.0
+                },
+                "band11": {
+                    "frequency": 4100,
+                    "gain": 0.5,
+                    "mode": "RLC (BT)",
+                    "mute": false,
+                    "q": 4.36,
+                    "slope": "x1",
+                    "solo": false,
+                    "type": "Bell",
+                    "width": 4.0
+                },
+                "band12": {
+                    "frequency": 6500,
+                    "gain": 1.5,
+                    "mode": "RLC (BT)",
+                    "mute": false,
+                    "q": 4.36,
+                    "slope": "x1",
+                    "solo": false,
+                    "type": "Bell",
+                    "width": 4.0
+                },
+                "band13": {
+                    "frequency": 10300,
+                    "gain": 2.0,
+                    "mode": "RLC (BT)",
+                    "mute": false,
+                    "q": 4.36,
+                    "slope": "x1",
+                    "solo": false,
+                    "type": "Bell",
+                    "width": 4.0
+                },
+                "band14": {
+                    "frequency": 16500,
+                    "gain": 0.5,
                     "mode": "RLC (BT)",
                     "mute": false,
                     "q": 4.36,
@@ -359,12 +397,27 @@
             "input-gain": 0.0,
             "output-gain": 0.0,
             "release": 25.0,
-            "threshold": 0.0
+            "threshold": -4.0
         },
-        "plugins_order": [
-            "bass_loudness#0",
-            "equalizer#0",
-            "maximizer#0"
-        ]
+        "limiter#0": {
+            "alr": false,
+            "alr-attack": 5.0,
+            "alr-knee": 0.0,
+            "alr-knee-smooth": -5.0,
+            "alr-release": 50.0,
+            "attack": 5.0,
+            "bypass": false,
+            "dithering": "None",
+            "gain-boost": true,
+            "input-gain": 0.0,
+            "lookahead": 5.0,
+            "mode": "Herm Thin",
+            "output-gain": 0.0,
+            "oversampling": "None",
+            "release": 10.0,
+            "sidechain-preamp": 0.0,
+            "stereo-link": 100.0,
+            "threshold": -1.0
+        }
     }
 }

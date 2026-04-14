@@ -46,8 +46,21 @@ def _get_real_home() -> Path:
             pass
     return Path.home()
 
+def _get_flatpak_config() -> Optional[Path]:
+    """Get the Flatpak EasyEffects config directory if it exists."""
+    home = _get_real_home()
+    flatpak_dir = home / ".var" / "app" / "com.github.wwmm.easyeffects" / "config" / "easyeffects"
+    if flatpak_dir.exists():
+        return flatpak_dir
+    return None
+
+
 def get_easyeffects_presets_dir(preset_type: str = "output") -> Optional[Path]:
     """Get the EasyEffects presets directory.
+    
+    Checks both native (~/.config/easyeffects/) and Flatpak
+    (~/.var/app/com.github.wwmm.easyeffects/config/easyeffects/) paths.
+    Returns whichever exists, preferring native.
     
     Args:
         preset_type: Either 'output' (speakers/headphones) or 'input' (microphone).
@@ -57,8 +70,41 @@ def get_easyeffects_presets_dir(preset_type: str = "output") -> Optional[Path]:
     if not xdg_config or (os.environ.get("SUDO_USER") and xdg_config.startswith("/root")):
         xdg_config = str(_get_real_home() / ".config")
         
-    ee_dir = Path(xdg_config) / "easyeffects" / preset_type
-    return ee_dir
+    native_dir = Path(xdg_config) / "easyeffects" / preset_type
+    
+    # Check if native path exists or its parent exists
+    if native_dir.exists() or native_dir.parent.exists():
+        return native_dir
+    
+    # Fallback to Flatpak path
+    flatpak_config = _get_flatpak_config()
+    if flatpak_config:
+        return flatpak_config / preset_type
+    
+    # Default to native (will be created on install)
+    return native_dir
+
+
+def get_all_easyeffects_presets_dirs(preset_type: str = "output") -> List[Path]:
+    """Get ALL EasyEffects presets directories (native + Flatpak).
+    
+    Used during installation to install presets to all detected locations.
+    """
+    dirs = []
+    xdg_config = os.environ.get("XDG_CONFIG_HOME")
+    if not xdg_config or (os.environ.get("SUDO_USER") and xdg_config.startswith("/root")):
+        xdg_config = str(_get_real_home() / ".config")
+    
+    native_dir = Path(xdg_config) / "easyeffects" / preset_type
+    dirs.append(native_dir)
+    
+    flatpak_config = _get_flatpak_config()
+    if flatpak_config:
+        flatpak_dir = flatpak_config / preset_type
+        if flatpak_dir not in dirs:
+            dirs.append(flatpak_dir)
+    
+    return dirs
 
 def get_all_presets(force_refresh: bool = False) -> List[Dict]:
     global _presets_cache

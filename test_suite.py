@@ -68,7 +68,7 @@ if ee_dir == expected:
 else:
     print(f"  FAIL: Expected {expected}, got {ee_dir}")
 convolver = irs_mod.get_easyeffects_convolver_dir()
-expected_conv = real_home / ".config" / "easyeffects" / "convolver"
+expected_conv = real_home / ".config" / "easyeffects" / "irs"
 if convolver == expected_conv:
     print(f"  PASS: Convolver dir = {convolver}")
 else:
