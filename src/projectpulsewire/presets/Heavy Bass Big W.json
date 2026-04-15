@@ -60,7 +60,7 @@
                     "gain": 7.5,
                     "mode": "APO (DR)",
                     "mute": false,
-                    "q": 0.7,
+                    "q": 1.0,
                     "slope": "x1",
                     "solo": false,
                     "type": "Bell",
@@ -71,7 +71,7 @@
                     "gain": 5.5,
                     "mode": "APO (DR)",
                     "mute": false,
-                    "q": 0.9,
+                    "q": 1.2,
                     "slope": "x1",
                     "solo": false,
                     "type": "Bell",
@@ -90,7 +90,7 @@
                 },
                 "band4": {
                     "frequency": 250,
-                    "gain": 0.0,
+                    "gain": -2.5,
                     "mode": "APO (DR)",
                     "mute": false,
                     "q": 1.2,
@@ -210,7 +210,7 @@
                     "gain": 7.5,
                     "mode": "APO (DR)",
                     "mute": false,
-                    "q": 0.7,
+                    "q": 1.0,
                     "slope": "x1",
                     "solo": false,
                     "type": "Bell",
@@ -221,7 +221,7 @@
                     "gain": 5.5,
                     "mode": "APO (DR)",
                     "mute": false,
-                    "q": 0.9,
+                    "q": 1.2,
                     "slope": "x1",
                     "solo": false,
                     "type": "Bell",
@@ -240,7 +240,7 @@
                 },
                 "band4": {
                     "frequency": 250,
-                    "gain": 0.0,
+                    "gain": -2.5,
                     "mode": "APO (DR)",
                     "mute": false,
                     "q": 1.2,
@@ -346,10 +346,10 @@
             "bypass": false,
             "floor": 25.0,
             "floor-active": true,
-            "harmonics": 9.5,
+            "harmonics": 8.5,
             "input-gain": 0.0,
             "output-gain": 0.0,
-            "scope": 130.0
+            "scope": 120.0
         },
         "maximizer#0": {
             "bypass": false,
@@ -376,7 +376,7 @@
             "release": 10.0,
             "sidechain-preamp": 0.0,
             "stereo-link": 100.0,
-            "threshold": -0.5
+            "threshold": -1.0
         }
     }
 }

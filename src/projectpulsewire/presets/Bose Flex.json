@@ -199,7 +199,7 @@
                 },
                 "band16": {
                     "frequency": 14000,
-                    "gain": 3.0,
+                    "gain": 4.0,
                     "mode": "RLC (BT)",
                     "mute": false,
                     "q": 4.36,
@@ -210,7 +210,7 @@
                 },
                 "band17": {
                     "frequency": 20000,
-                    "gain": 4.0,
+                    "gain": 5.0,
                     "mode": "RLC (BT)",
                     "mute": false,
                     "q": 4.36,
@@ -404,7 +404,7 @@
                 },
                 "band16": {
                     "frequency": 14000,
-                    "gain": 3.0,
+                    "gain": 4.0,
                     "mode": "RLC (BT)",
                     "mute": false,
                     "q": 4.36,
@@ -415,7 +415,7 @@
                 },
                 "band17": {
                     "frequency": 20000,
-                    "gain": 4.0,
+                    "gain": 5.0,
                     "mode": "RLC (BT)",
                     "mute": false,
                     "q": 4.36,
@@ -428,12 +428,12 @@
             "split-channels": false
         },
         "bass_enhancer#0": {
-            "amount": 5.0,
+            "amount": 4.5,
             "blend": -2.0,
             "bypass": false,
             "floor": 30.0,
             "floor-active": true,
-            "harmonics": 8.0,
+            "harmonics": 7.5,
             "input-gain": 0.0,
             "output-gain": 0.0,
             "scope": 100.0
@@ -443,7 +443,7 @@
             "input-gain": 0.0,
             "output-gain": 0.0,
             "release": 25.0,
-            "threshold": -3.0
+            "threshold": -4.0
         },
         "limiter#0": {
             "alr": false,

@@ -47,7 +47,7 @@
             "left": {
                 "band0": {
                     "frequency": 30,
-                    "gain": 2.0,
+                    "gain": 1.5,
                     "mode": "APO (DR)",
                     "mute": false,
                     "q": 0.7,
@@ -58,7 +58,7 @@
                 },
                 "band1": {
                     "frequency": 60,
-                    "gain": 4.5,
+                    "gain": 6.0,
                     "mode": "APO (DR)",
                     "mute": false,
                     "q": 0.8,
@@ -69,7 +69,7 @@
                 },
                 "band2": {
                     "frequency": 100,
-                    "gain": 3.0,
+                    "gain": 4.0,
                     "mode": "APO (DR)",
                     "mute": false,
                     "q": 1.0,
@@ -135,7 +135,7 @@
                 },
                 "band8": {
                     "frequency": 4000,
-                    "gain": 3.5,
+                    "gain": 4.0,
                     "mode": "APO (DR)",
                     "mute": false,
                     "q": 1.0,
@@ -157,7 +157,7 @@
                 },
                 "band10": {
                     "frequency": 9000,
-                    "gain": 3.0,
+                    "gain": 4.0,
                     "mode": "APO (DR)",
                     "mute": false,
                     "q": 0.8,
@@ -168,7 +168,7 @@
                 },
                 "band11": {
                     "frequency": 13000,
-                    "gain": 2.0,
+                    "gain": 3.0,
                     "mode": "APO (DR)",
                     "mute": false,
                     "q": 0.7,
@@ -179,7 +179,7 @@
                 },
                 "band12": {
                     "frequency": 17000,
-                    "gain": 1.0,
+                    "gain": 2.0,
                     "mode": "APO (DR)",
                     "mute": false,
                     "q": 0.7,
@@ -197,7 +197,7 @@
             "right": {
                 "band0": {
                     "frequency": 30,
-                    "gain": 2.0,
+                    "gain": 1.5,
                     "mode": "APO (DR)",
                     "mute": false,
                     "q": 0.7,
@@ -208,7 +208,7 @@
                 },
                 "band1": {
                     "frequency": 60,
-                    "gain": 4.5,
+                    "gain": 6.0,
                     "mode": "APO (DR)",
                     "mute": false,
                     "q": 0.8,
@@ -219,7 +219,7 @@
                 },
                 "band2": {
                     "frequency": 100,
-                    "gain": 3.0,
+                    "gain": 4.0,
                     "mode": "APO (DR)",
                     "mute": false,
                     "q": 1.0,
@@ -285,7 +285,7 @@
                 },
                 "band8": {
                     "frequency": 4000,
-                    "gain": 3.5,
+                    "gain": 4.0,
                     "mode": "APO (DR)",
                     "mute": false,
                     "q": 1.0,
@@ -307,7 +307,7 @@
                 },
                 "band10": {
                     "frequency": 9000,
-                    "gain": 3.0,
+                    "gain": 4.0,
                     "mode": "APO (DR)",
                     "mute": false,
                     "q": 0.8,
@@ -318,7 +318,7 @@
                 },
                 "band11": {
                     "frequency": 13000,
-                    "gain": 2.0,
+                    "gain": 3.0,
                     "mode": "APO (DR)",
                     "mute": false,
                     "q": 0.7,
@@ -329,7 +329,7 @@
                 },
                 "band12": {
                     "frequency": 17000,
-                    "gain": 1.0,
+                    "gain": 2.0,
                     "mode": "APO (DR)",
                     "mute": false,
                     "q": 0.7,
@@ -342,7 +342,7 @@
             "split-channels": false
         },
         "bass_enhancer#0": {
-            "amount": 4.0,
+            "amount": 5.0,
             "blend": -1.0,
             "bypass": false,
             "floor": 20.0,
@@ -451,7 +451,7 @@
             "release": 10.0,
             "sidechain-preamp": 0.0,
             "stereo-link": 100.0,
-            "threshold": -0.5
+            "threshold": -1.0
         }
     }
 }
