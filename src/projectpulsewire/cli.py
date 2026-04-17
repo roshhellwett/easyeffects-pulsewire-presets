@@ -73,14 +73,14 @@ def print_success(message: str, details: str = "") -> None:
     if details:
         msg += f"\n\n[dim]{details}[/dim]"
     
-    console.print(Panel(msg, title="[bold #00ffaa] ✨ Huge W [/]", border_style="#00ffaa", box=box.ROUNDED))
+    console.print(Panel(msg, title="[bold #00ffaa] Success [/]", border_style="#00ffaa", box=box.ROUNDED))
 
 def print_info(message: str, details: str = "") -> None:
     msg = f"[bold #00ccff]{message}[/bold #00ccff]"
     if details:
         msg += f"\n\n[dim]{details}[/dim]"
     
-    console.print(Panel(msg, title="[bold #00ccff] 💡 Just sayin' [/]", border_style="#00ccff", box=box.ROUNDED))
+    console.print(Panel(msg, title="[bold #00ccff] Info [/]", border_style="#00ccff", box=box.ROUNDED))
 
 def show_main_menu() -> str:
     console.clear()
@@ -157,7 +157,7 @@ def handle_browse_presets() -> None:
     
     while True:
         console.clear()
-        console.print(Panel("[bold #00ffcc]🎧 Vibes & Aesthetics Database[/]", border_style="#00ffcc", expand=False))
+        console.print(Panel("[bold #00ffcc]🎧 Preset Library[/]", border_style="#00ffcc", expand=False))
         
         for i, cat in enumerate(cat_list, 1):
             count = len(categories[cat])

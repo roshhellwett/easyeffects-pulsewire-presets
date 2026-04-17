@@ -151,38 +151,50 @@ def get_preset_by_name(name: str) -> Optional[Dict]:
 
 def get_presets_by_category(presets: List[Dict]) -> Dict[str, List[Dict]]:
     categories: Dict[str, List[Dict]] = {}
-    
-    category_keywords = {
-        "Bass": ["bass", "hb-", "heavy"],
-        "Loudness": ["loudness", "dynamics", "autogain", "boost", "advanced"],
-        "Music Genre": ["rock", "lofi", "edm", "indie", "kpop", "classical", "hifi"],
-        "Device": ["sony", "bose"],
-        "Voice": ["dialogue", "clarity", "gentle"],
-        "Video": ["video"],
+    category_order = ["Bass", "Genre", "Voice", "Brand", "Dynamics", "Other"]
+    alias_map = {
+        "music genre": "Genre",
+        "genre": "Genre",
+        "voice": "Voice",
+        "media": "Voice",
+        "device": "Brand",
+        "brand": "Brand",
+        "loudness": "Dynamics",
+        "dynamics": "Dynamics",
     }
-    
+
     for preset in presets:
-        categorized = False
-        preset_name_lower = preset["name"].lower()
-        
-        for category, keywords in category_keywords.items():
-            if category not in categories:
-                categories[category] = []
-            for kw in keywords:
-                if kw in preset_name_lower:
-                    categories[category].append(preset)
-                    categorized = True
+        name = preset["name"]
+        category = "Other"
+
+        if " - " in name:
+            prefix = name.split(" - ", 1)[0].strip().lower()
+            category = alias_map.get(prefix, name.split(" - ", 1)[0].strip())
+        else:
+            preset_name_lower = name.lower()
+            fallback_keywords = {
+                "Bass": ["bass", "sub", "kick", "v-shape"],
+                "Genre": ["edm", "rock", "classical", "lo-fi", "indie", "k-pop", "hi-fi"],
+                "Voice": ["dialogue", "podcast", "vocal", "gaming", "video", "live"],
+                "Brand": ["bose", "jbl", "harman", "sony"],
+                "Dynamics": ["loudness", "auto gain", "crystal", "soft volume", "late night"],
+            }
+            for fallback_category, keywords in fallback_keywords.items():
+                if any(keyword in preset_name_lower for keyword in keywords):
+                    category = fallback_category
                     break
-            if categorized:
-                break
-        
-        if not categorized:
-            if "Other" not in categories:
-                categories["Other"] = []
-            categories["Other"].append(preset)
-    
-    # Ensure all keys are strings (defensive)
-    return {str(k): v for k, v in categories.items()}
+
+        categories.setdefault(category, []).append(preset)
+
+    ordered_categories: Dict[str, List[Dict]] = {}
+    for category in category_order:
+        if category in categories:
+            ordered_categories[category] = categories[category]
+
+    for category in sorted(k for k in categories.keys() if k not in ordered_categories):
+        ordered_categories[str(category)] = categories[category]
+
+    return ordered_categories
 
 def get_installed_presets(force_refresh: bool = False) -> List[str]:
     global _installed_cache

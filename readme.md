@@ -1,5 +1,5 @@
 [![License](https://img.shields.io/badge/License-MIT-45b7d1?style=flat-square)](LICENSE)
-[![PyPI](https://img.shields.io/badge/PyPI-2.0.0-4ecdc4?style=flat-square)](https://pypi.org/project/projectpulsewire/)
+[![PyPI](https://img.shields.io/badge/PyPI-2.0.2-4ecdc4?style=flat-square)](https://pypi.org/project/projectpulsewire/)
 [![Platform](https://img.shields.io/badge/Platform-Linux-FCC624?style=flat-square&logo=linux)](https://github.com/roshhellwett/projectpulsewire)
 
 # PROJECT PULSEWIRE
@@ -69,9 +69,9 @@ python -m projectpulsewire list-irs
 
 ### Install a Specific Preset
 ```bash
-python -m projectpulsewire install "Bass Boosted Banger"
-python -m projectpulsewire install "Rock Energy Max"
-python -m projectpulsewire install "LoFi Chill Max"
+python -m projectpulsewire install "Bass - Punchy Everyday"
+python -m projectpulsewire install "Brand - Harman Reference"
+python -m projectpulsewire install "Voice - Dialogue Focus"
 ```
 
 ### Install an IRS File
@@ -87,7 +87,7 @@ python -m projectpulsewire installed
 
 ### Remove a Preset
 ```bash
-python -m projectpulsewire remove "Bass Boosted Banger"
+python -m projectpulsewire remove "Bass - Punchy Everyday"
 ```
 
 ### Setup Audio Stack (Auto-Install Dependencies)
@@ -168,34 +168,70 @@ Supports: **Ubuntu/Debian**, **Fedora**, **Arch/Manjaro**, **openSUSE**, and **F
 
 ## 🎵 What's Included?
 
-### 47 Professionally-Tuned EQ Presets
+### 47 Curated EQ Presets
 
-All presets feature **proper signal chains** with compressor, EQ, bass enhancer, and limiter — not just a naked equalizer.
+The preset pack is now organized around clear sound families instead of random names, so users can predict the result before installing anything.
 
-**Bass Category (10 presets)**
-- Bass Boosted Banger, Deep Bass Sheesh, Heavy Bass Big W, Boosted AF
-- Bass Enhancer + Perfect EQ God Tier, Perfect EQ God Tier
-- HB-Flat NPC Mode, HB-Lite Vibe, HB-Mid Tier, V Shape Boost Rizz
+All presets use restrained signal chains built from **compressor**, **equalizer**, **bass enhancer**, **bass loudness**, **maximizer**, and **limiter** blocks where appropriate.
 
-**Music Genre (14 presets)**
-- Rock Energy Max/Min, EDM Banger Max/Min, Classical Aura Max/Min
-- LoFi Chill Max/Min, Indie Vibe Max/Min, KPop Stan Max/Min
-- HiFi Drip Max/Min
+**Bass (10 presets)**
+- Bass - Punchy Everyday
+- Bass - Deep Sub Lift
+- Bass - Warm Consumer
+- Bass - Tight Kick
+- Bass - Club V-Shape
+- Bass - Clean Bass Lift
+- Bass - Bass + Clarity
+- Bass - Bass + Loudness
+- Bass - Late Night Bass
+- Bass - Speaker Rescue
 
-**Clarity & Voice (8 presets)**
-- Crystal Air Drip, Warm Vocal Clarity Rizz, Cinema Voice Main Character
-- Gaming Tryhard Mode, Studio Flat IRL, Night Listener Doomer Mode
-- Live Concert Moshpit, Video Binge Mode
+**Genre (14 presets)**
+- Genre - EDM Festival
+- Genre - EDM Smooth
+- Genre - Rock Arena
+- Genre - Rock Classic
+- Genre - Classical Wide
+- Genre - Classical Warm
+- Genre - Lo-Fi Soft
+- Genre - Lo-Fi Air
+- Genre - Indie Presence
+- Genre - Indie Warm
+- Genre - K-Pop Sparkle
+- Genre - K-Pop Impact
+- Genre - Hi-Fi Reference
+- Genre - Hi-Fi Rich
 
-**Device Signatures (2 presets)**
-- Bose Flex, Sony Flex
+**Voice (8 presets)**
+- Voice - Dialogue Focus
+- Voice - Dialogue Night
+- Voice - Podcast Clear
+- Voice - Vocal Warmth
+- Voice - Gaming Footsteps
+- Voice - Gaming Immersion
+- Voice - Video Balanced
+- Voice - Live Stage
 
-**Loudness & Dynamics (13 presets)**
-- Music Vibe Check, Loudness Compensator Carry
-- Advanced Auto Gain Goated, Loudness+Autogain Carry
-- Loudness Crystal Equalizer Default/GTK Drip
-- Loudness Equalizer Boomer Gate/GTK Drip/PE Edition/Standard
-- GentleDynamics Chill/Soft Era Loudness/Yapper Clarity
+**Brand (8 presets)**
+- Brand - Bose Warm
+- Brand - Bose Smooth Bass
+- Brand - JBL Pure Bass
+- Brand - JBL Party V
+- Brand - Harman Reference
+- Brand - Harman Kardon Lounge
+- Brand - Sony Excited
+- Brand - Sony Bright
+
+**Dynamics (7 presets)**
+- Dynamics - Loudness Light
+- Dynamics - Loudness Deep
+- Dynamics - Auto Gain Soft
+- Dynamics - Auto Gain Punch
+- Dynamics - Crystal Detail
+- Dynamics - Late Night
+- Dynamics - Soft Volume Lift
+
+Brand presets are **brand-inspired voicings**, not official Bose, JBL, Harman, Harman Kardon, or Sony factory profiles.
 
 ### 404 IRS Files
 - Dolby Surround profiles
