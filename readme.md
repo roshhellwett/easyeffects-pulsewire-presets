@@ -6,9 +6,7 @@
 
 Premium EasyEffects presets for PipeWire/PulseAudio on Linux. Transform your Linux audio experience with one command!
 
-![SAMPLE](https://github.com/roshhellwett/projectpulsewire/blob/9b142db104c4f05d19cbabf78b11ae46ce332a1d/sample/samplezero.png)
-
-![SAMPLE](https://github.com/roshhellwett/projectpulsewire/blob/9b142db104c4f05d19cbabf78b11ae46ce332a1d/sample/sampleone.png)
+![SAMPLE](https://github.com/roshhellwett/projectpulsewire/blob/050f1eeda9d3a7bb69efa75c78cf3007e3b20ff2/sample/samplezero.png)
 
 ---
 
