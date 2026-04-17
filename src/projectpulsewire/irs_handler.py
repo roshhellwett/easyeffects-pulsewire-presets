@@ -204,18 +204,16 @@ def get_irs_by_category(irs_list: List[Dict]) -> Dict[str, List[Dict]]:
         irs_name_lower = irs["name"].lower()
         
         for category, keywords in category_keywords.items():
-            if category not in categories:
-                categories[category] = []
             for kw in keywords:
                 if kw in irs_name_lower:
-                    categories[category].append(irs)
+                    categories.setdefault(category, []).append(irs)
                     categorized = True
                     break
+            if categorized:
+                break
         
         if not categorized:
-            if "Other" not in categories:
-                categories["Other"] = []
-            categories["Other"].append(irs)
+            categories.setdefault("Other", []).append(irs)
     
     # Ensure all keys are strings (defensive)
     return {str(k): v for k, v in categories.items()}

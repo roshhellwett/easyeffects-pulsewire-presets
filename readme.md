@@ -1,9 +1,5 @@
 [![License](https://img.shields.io/badge/License-MIT-45b7d1?style=flat-square)](LICENSE)
-<<<<<<< HEAD
-[![PyPI](https://img.shields.io/badge/PyPI-2.0.2-4ecdc4?style=flat-square)](https://pypi.org/project/projectpulsewire/)
-=======
-[![PyPI](https://img.shields.io/badge/PyPI-2.0.1-4ecdc4?style=flat-square)](https://pypi.org/project/projectpulsewire/)
->>>>>>> bcd30894ba60fa8c534780876d5fb4842cedd4c5
+[![PyPI](https://img.shields.io/badge/PyPI-2.0.3-4ecdc4?style=flat-square)](https://pypi.org/project/projectpulsewire/)
 [![Platform](https://img.shields.io/badge/Platform-Linux-FCC624?style=flat-square&logo=linux)](https://github.com/roshhellwett/projectpulsewire)
 
 # PROJECT PULSEWIRE
@@ -108,6 +104,13 @@ python -m projectpulsewire irs-guide
 ```bash
 python -m projectpulsewire update
 ```
+
+### Automatic Update Checks
+
+When users open the interactive app, `projectpulsewire` now checks PyPI automatically for new releases once every 24 hours.
+
+- Set `PROJECTPULSEWIRE_DISABLE_AUTO_UPDATE=1` to disable startup checks
+- Set `PROJECTPULSEWIRE_AUTO_UPDATE=1` to auto-install new releases without prompting
 
 ### Get Help
 ```bash

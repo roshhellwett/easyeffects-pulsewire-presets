@@ -1,7 +1,12 @@
 import os
 import sys
+import json
 import logging
+import subprocess
+import urllib.request
+import urllib.error
 from pathlib import Path
+from datetime import datetime, timedelta, timezone
 
 if hasattr(sys.stdout, 'reconfigure') and sys.stdout.encoding.lower() != 'utf-8':
     try:
@@ -24,6 +29,9 @@ from projectpulsewire import deps_installer
 
 logging.basicConfig(level=logging.INFO, format="%(levelname)s: %(message)s")
 logger = logging.getLogger(__name__)
+
+UPDATE_CHECK_INTERVAL_HOURS = 24
+PYPI_JSON_URL = "https://pypi.org/pypi/projectpulsewire/json"
 
 app = typer.Typer(help="projectpulsewire — EasyEffects presets for PipeWire/PulseAudio", add_completion=False)
 console = Console()
@@ -81,6 +89,157 @@ def print_info(message: str, details: str = "") -> None:
         msg += f"\n\n[dim]{details}[/dim]"
     
     console.print(Panel(msg, title="[bold #00ccff] Info [/]", border_style="#00ccff", box=box.ROUNDED))
+
+
+def _parse_version_parts(version: str) -> tuple[int, ...]:
+    parts = []
+    for token in version.split("."):
+        digits = "".join(ch for ch in token if ch.isdigit())
+        if digits:
+            parts.append(int(digits))
+        else:
+            parts.append(0)
+    return tuple(parts)
+
+
+def _is_newer_version(current_version: str, latest_version: str) -> bool:
+    return _parse_version_parts(latest_version) > _parse_version_parts(current_version)
+
+
+def get_update_cache_file() -> Path:
+    cache_root = os.environ.get("XDG_CACHE_HOME")
+    if cache_root:
+        base_dir = Path(cache_root)
+    else:
+        base_dir = Path.home() / ".cache"
+    return base_dir / "projectpulsewire" / "update-check.json"
+
+
+def load_update_cache() -> dict:
+    cache_file = get_update_cache_file()
+    if not cache_file.exists():
+        return {}
+    try:
+        return json.loads(cache_file.read_text(encoding="utf-8"))
+    except (OSError, json.JSONDecodeError):
+        return {}
+
+
+def save_update_cache(payload: dict) -> None:
+    cache_file = get_update_cache_file()
+    try:
+        cache_file.parent.mkdir(parents=True, exist_ok=True)
+        cache_file.write_text(json.dumps(payload, indent=2), encoding="utf-8")
+    except OSError as exc:
+        logger.debug(f"Failed to save update cache: {exc}")
+
+
+def fetch_latest_version_from_pypi() -> str:
+    req = urllib.request.Request(
+        PYPI_JSON_URL,
+        headers={"Accept": "application/json"},
+    )
+    with urllib.request.urlopen(req, timeout=15) as resp:
+        data = json.loads(resp.read().decode())
+    return data.get("info", {}).get("version", "Unknown")
+
+
+def get_current_installed_version() -> str:
+    current_result = subprocess.run(
+        ["pip", "show", "projectpulsewire"],
+        capture_output=True,
+        text=True,
+        timeout=15,
+    )
+
+    for line in current_result.stdout.splitlines():
+        if line.startswith("Version:"):
+            return line.replace("Version:", "").strip()
+
+    return __version__
+
+
+def perform_package_update() -> tuple[bool, str]:
+    update_result = subprocess.run(
+        ["pip", "install", "--upgrade", "projectpulsewire"],
+        capture_output=True,
+        text=True,
+        timeout=180,
+    )
+
+    if update_result.returncode == 0:
+        return True, "You are now running the latest version."
+
+    error_output = update_result.stderr.strip() or update_result.stdout.strip() or "Unknown pip error"
+    return False, error_output
+
+
+def should_auto_check_updates() -> bool:
+    if os.environ.get("PROJECTPULSEWIRE_DISABLE_AUTO_UPDATE", "").lower() in {"1", "true", "yes"}:
+        return False
+
+    cache = load_update_cache()
+    last_checked = cache.get("last_checked_at")
+    if not last_checked:
+        return True
+
+    try:
+        last_checked_dt = datetime.fromisoformat(last_checked)
+    except ValueError:
+        return True
+
+    return datetime.now(timezone.utc) - last_checked_dt >= timedelta(hours=UPDATE_CHECK_INTERVAL_HOURS)
+
+
+def maybe_run_auto_update_check() -> None:
+    if not is_interactive() or not should_auto_check_updates():
+        return
+
+    current_version = get_current_installed_version()
+    latest_version = "Unknown"
+    now_iso = datetime.now(timezone.utc).isoformat()
+
+    try:
+        latest_version = fetch_latest_version_from_pypi()
+    except (urllib.error.URLError, json.JSONDecodeError, Exception) as exc:
+        logger.debug(f"Auto update check skipped: {exc}")
+        save_update_cache({
+            "last_checked_at": now_iso,
+            "last_known_version": current_version,
+            "last_error": str(exc),
+        })
+        return
+
+    save_update_cache({
+        "last_checked_at": now_iso,
+        "last_known_version": latest_version,
+    })
+
+    if latest_version == "Unknown" or not _is_newer_version(current_version, latest_version):
+        return
+
+    console.print(Panel(
+        f"[bold #00ccff]A new version of projectpulsewire is available.[/bold #00ccff]\n\n"
+        f"[dim]Current:[/] [yellow]{current_version}[/yellow]\n"
+        f"[dim]Latest:[/] [green]{latest_version}[/green]",
+        title="[bold #ffa500] Auto Update Check [/]",
+        border_style="#ffa500",
+        box=box.ROUNDED,
+    ))
+
+    auto_mode = os.environ.get("PROJECTPULSEWIRE_AUTO_UPDATE", "").lower() in {"1", "true", "yes"}
+    do_update = auto_mode or Confirm.ask("Update now before opening the menu?", default=True)
+
+    if not do_update:
+        return
+
+    console.print("\n[dim]Updating package before startup...[/dim]\n")
+    success, message = perform_package_update()
+    if success:
+        print_success("Update successful!", message)
+    else:
+        print_error_context("Automatic update failed", message, "Try: python -m projectpulsewire update")
+    pause_for_user()
 
 def show_main_menu() -> str:
     console.clear()
@@ -1064,25 +1223,13 @@ def handle_install_all_irs(all_irs: list, installed_irs: list) -> None:
     pause_for_user()
 
 def handle_update() -> None:
-    import subprocess
-    import urllib.request
-    import urllib.error
-    import json as _json
-
     console.clear()
     console.print("\n[bold cyan]--- Update projectpulsewire ---[/bold cyan]\n")
     console.print("[dim]Checking for updates from PyPI...[/dim]\n")
 
     try:
-        req = urllib.request.Request(
-            "https://pypi.org/pypi/projectpulsewire/json",
-            headers={"Accept": "application/json"},
-        )
-        with urllib.request.urlopen(req, timeout=15) as resp:
-            data = _json.loads(resp.read().decode())
-
-        latest_version = data.get("info", {}).get("version", "Unknown")
-    except (urllib.error.URLError, _json.JSONDecodeError, Exception) as e:
+        latest_version = fetch_latest_version_from_pypi()
+    except (urllib.error.URLError, json.JSONDecodeError, Exception) as e:
         logger.error(f"Failed to fetch latest version from PyPI: {e}")
         print_error_context(
             "Could not check for updates",
@@ -1093,23 +1240,17 @@ def handle_update() -> None:
         pause_for_user()
         return
 
-    current_result = subprocess.run(
-        ["pip", "show", "projectpulsewire"],
-        capture_output=True,
-        text=True,
-        timeout=15,
-    )
-
-    current_version = "Unknown"
-    for line in current_result.stdout.split("\n"):
-        if line.startswith("Version:"):
-            current_version = line.replace("Version:", "").strip()
-            break
+    current_version = get_current_installed_version()
 
     console.print(f"  [dim]Current version:[/dim] [yellow]{current_version}[/yellow]")
     console.print(f"  [dim]Latest version:[/dim]  [green]{latest_version}[/green]\n")
 
-    if current_version != latest_version and latest_version != "Unknown":
+    save_update_cache({
+        "last_checked_at": datetime.now(timezone.utc).isoformat(),
+        "last_known_version": latest_version,
+    })
+
+    if latest_version != "Unknown" and _is_newer_version(current_version, latest_version):
         console.print("[bold yellow]A new version is available![/bold yellow]\n")
 
         do_update = Confirm.ask("Do you want to update now?", default=True)
@@ -1117,17 +1258,11 @@ def handle_update() -> None:
         if do_update:
             console.print("\n[dim]Updating package...[/dim]\n")
 
-            update_result = subprocess.run(
-                ["pip", "install", "--upgrade", "projectpulsewire"],
-                capture_output=True,
-                text=True,
-                timeout=120,
-            )
-
-            if update_result.returncode == 0:
-                print_success("Update successful!", "You are now running the latest version.")
+            success, message = perform_package_update()
+            if success:
+                print_success("Update successful!", message)
             else:
-                print_error_context("Update failed", update_result.stderr, "Try: pip install --upgrade projectpulsewire")
+                print_error_context("Update failed", message, "Try: pip install --upgrade projectpulsewire")
     else:
         print_info("You're up to date!", f"No updates available. Current version: {current_version}")
 
@@ -1333,6 +1468,11 @@ def handle_help() -> None:
   [green]python -m projectpulsewire --help[/green]         Show all options
   [green]python -m projectpulsewire --version[/green]      Show version
 
+[bold yellow]Auto Update:[/bold yellow]
+  [dim]• Interactive startup now checks PyPI automatically once every 24 hours[/dim]
+  [dim]• Set PROJECTPULSEWIRE_DISABLE_AUTO_UPDATE=1 to disable startup checks[/dim]
+  [dim]• Set PROJECTPULSEWIRE_AUTO_UPDATE=1 to auto-install updates without prompting[/dim]
+
 [bold yellow]Installation:[/bold yellow]
   [green]pip install projectpulsewire[/green]
 
@@ -1356,6 +1496,7 @@ def handle_help() -> None:
     pause_for_user()
 
 def main_menu_loop() -> None:
+    maybe_run_auto_update_check()
     while True:
         try:
             choice = show_main_menu()
