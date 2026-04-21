@@ -6,6 +6,7 @@ import subprocess
 import urllib.request
 import urllib.error
 from pathlib import Path
+from typing import Optional
 from datetime import datetime, timedelta, timezone
 
 if hasattr(sys.stdout, 'reconfigure') and sys.stdout.encoding.lower() != 'utf-8':
@@ -17,9 +18,8 @@ if hasattr(sys.stdout, 'reconfigure') and sys.stdout.encoding.lower() != 'utf-8'
 import typer
 from rich.console import Console
 from rich.panel import Panel
-from rich.text import Text
 from rich.table import Table
-from rich.prompt import Prompt, Confirm
+from rich.prompt import Confirm
 from rich import box
 
 from projectpulsewire import __version__
@@ -385,14 +385,9 @@ def handle_browse_presets() -> None:
                 safe_input("Press Enter to continue...")
                 continue
             
-            try:
-                idx = int(choice) - 1
-                if idx < 0 or idx >= len(selected_presets):
-                    console.print(f"\n[red]Invalid choice. Please enter 1-{len(selected_presets)}.[/red]")
-                    safe_input("Press Enter to continue...")
-                    continue
-            except ValueError:
-                console.print("\n[red]Invalid input.[/red]")
+            idx = int(choice) - 1
+            if idx < 0 or idx >= len(selected_presets):
+                console.print(f"\n[red]Invalid choice. Please enter 1-{len(selected_presets)}.[/red]")
                 safe_input("Press Enter to continue...")
                 continue
             
@@ -499,6 +494,11 @@ def handle_install_single(all_presets: list, installed: list) -> None:
 def handle_install_multiple(all_presets: list, installed: list) -> None:
     console.print("\n[yellow]Enter preset numbers (comma-separated, e.g., 1,2,3):[/yellow]")
     choice = safe_input(">> ").strip()
+    
+    if not choice:
+        console.print("[yellow]No input received.[/yellow]")
+        pause_for_user()
+        return
     
     try:
         indices = [int(x.strip()) - 1 for x in choice.split(",")]
@@ -724,6 +724,11 @@ def handle_remove_single_preset(installed_presets: list) -> None:
 def handle_remove_multiple_presets(installed_presets: list) -> None:
     choice = safe_input("\n>> Enter preset numbers (comma-separated, e.g., 1,2,3): ").strip()
     
+    if not choice:
+        console.print("[yellow]No input received.[/yellow]")
+        pause_for_user()
+        return
+    
     try:
         indices = [int(x.strip()) - 1 for x in choice.split(",")]
     except ValueError:
@@ -855,6 +860,11 @@ def handle_remove_single_irs(installed_irs: list) -> None:
 
 def handle_remove_multiple_irs(installed_irs: list) -> None:
     choice = safe_input("\n>> Enter IRS numbers (comma-separated, e.g., 1,2,3): ").strip()
+    
+    if not choice:
+        console.print("[yellow]No input received.[/yellow]")
+        pause_for_user()
+        return
     
     try:
         indices = [int(x.strip()) - 1 for x in choice.split(",")]
@@ -1013,14 +1023,9 @@ def handle_browse_irs() -> None:
                 safe_input("Press Enter to continue...")
                 continue
             
-            try:
-                idx = int(choice) - 1
-                if idx < 0 or idx >= len(selected_irs):
-                    console.print(f"\n[red]Invalid choice. Please enter 1-{len(selected_irs)}.[/red]")
-                    safe_input("Press Enter to continue...")
-                    continue
-            except ValueError:
-                console.print("\n[red]Invalid input.[/red]")
+            idx = int(choice) - 1
+            if idx < 0 or idx >= len(selected_irs):
+                console.print(f"\n[red]Invalid choice. Please enter 1-{len(selected_irs)}.[/red]")
                 safe_input("Press Enter to continue...")
                 continue
             
@@ -1144,6 +1149,11 @@ def handle_install_single_irs(all_irs: list, installed_irs: list) -> None:
 def handle_install_multiple_irs(all_irs: list, installed_irs: list) -> None:
     console.print("\n[yellow]Enter IRS numbers (comma-separated, e.g., 1,2,3):[/yellow]")
     choice = safe_input(">> ").strip()
+    
+    if not choice:
+        console.print("[yellow]No input received.[/yellow]")
+        pause_for_user()
+        return
     
     try:
         indices = [int(x.strip()) - 1 for x in choice.split(",")]
@@ -1526,7 +1536,10 @@ def main_menu_loop() -> None:
                 console.print("[dim]--- Copyright 2026 Zenith Open Source Projects | Developer: roshhellwett ---[/dim]\n")
                 break
             else:
-                console.print(f"\n[red]Invalid choice '{choice}'. Please enter 0-10.[/red]")
+                if choice:
+                    console.print(f"\n[red]Invalid choice '{choice}'. Please enter 0-10.[/red]")
+                else:
+                    console.print("\n[red]No input received. Please enter 0-10.[/red]")
                 pause_for_user()
         except KeyboardInterrupt:
             console.print("\n\n[cyan]Goodbye![/cyan]")
@@ -1539,6 +1552,7 @@ def main_menu_loop() -> None:
 
 @app.callback(invoke_without_command=True)
 def callback(
+    ctx: typer.Context,
     version: bool = typer.Option(
         False, "--version", "-V", help="Show version and exit", is_eager=True
     ),
@@ -1546,6 +1560,8 @@ def callback(
     if version:
         print_version()
         raise typer.Exit()
+    if ctx.invoked_subcommand is None:
+        main_menu_loop()
 
 @app.command()
 def start():
@@ -1563,7 +1579,7 @@ def update():
     handle_update()
 
 @app.command(name="list")
-def list_cmd(category: str | None = typer.Option(None, "--category", "-c", help="Filter by category")):
+def list_cmd(category: Optional[str] = typer.Option(None, "--category", "-c", help="Filter by category")):
     """List all available presets."""
     all_presets = presets_module.get_all_presets()
     
@@ -1663,7 +1679,7 @@ def browse():
     handle_browse_presets()
 
 @app.command()
-def list_irs(category: str | None = typer.Option(None, "--category", "-c", help="Filter by category")):
+def list_irs(category: Optional[str] = typer.Option(None, "--category", "-c", help="Filter by category")):
     """List all available IRS files."""
     all_irs = irs_module.get_all_irs()
     

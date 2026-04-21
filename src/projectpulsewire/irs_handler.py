@@ -4,7 +4,6 @@ import logging
 from pathlib import Path
 from typing import List, Dict, Optional
 
-logging.basicConfig(level=logging.INFO, format="%(levelname)s: %(message)s")
 logger = logging.getLogger(__name__)
 
 _irs_cache = None
@@ -356,10 +355,10 @@ def remove_multiple_irs(irs_names: List[str]) -> tuple[bool, str]:
         found = False
         for file in convolver_dir.glob("*.irs"):
             if file.stem.lower() == irs_name.lower():
+                found = True
                 try:
                     file.unlink()
                     removed.append(file.stem)
-                    found = True
                 except Exception as e:
                     failed.append(f"{irs_name}: {str(e)}")
                 break

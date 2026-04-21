@@ -4,9 +4,7 @@ import shutil
 import logging
 from pathlib import Path
 from typing import List, Dict, Optional
-from functools import lru_cache
 
-logging.basicConfig(level=logging.INFO, format="%(levelname)s: %(message)s")
 logger = logging.getLogger(__name__)
 
 _presets_cache = None
@@ -332,10 +330,10 @@ def remove_multiple_presets(preset_names: List[str]) -> tuple[bool, str]:
                 continue
             for file in ee_dir.glob("*.json"):
                 if file.stem.lower() == preset_name.lower():
+                    found = True
                     try:
                         file.unlink()
                         removed.append(file.stem)
-                        found = True
                     except Exception as e:
                         failed.append(f"{preset_name}: {str(e)}")
                     break

@@ -96,12 +96,15 @@ irs_cats = irs_mod.get_irs_by_category(all_irs)
 print(f"  IRS categories: {list(irs_cats.keys())}")
 
 print("\n=== TEST 8: Version consistency ===")
-import importlib.metadata
-version_pkg = importlib.metadata.version("projectpulsewire")
-version_code = pp_init.__version__
-if version_pkg == version_code or True: # Local test might not have the new version installed
-    print(f"  PASS: __init__={version_code}")
-else:
-    print(f"  FAIL: app installed version={version_pkg}, __init__={version_code}")
+try:
+    import importlib.metadata
+    version_pkg = importlib.metadata.version("projectpulsewire")
+    version_code = pp_init.__version__
+    if version_pkg == version_code:
+        print(f"  PASS: installed={version_pkg}, __init__={version_code}")
+    else:
+        print(f"  FAIL: installed={version_pkg}, __init__={version_code}")
+except importlib.metadata.PackageNotFoundError:
+    print(f"  SKIP: Package not installed via pip (dev mode). __init__={pp_init.__version__}")
 
 print("\n=== ALL TESTS COMPLETE ===")
