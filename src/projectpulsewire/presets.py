@@ -121,8 +121,6 @@ def get_all_presets(force_refresh: bool = False) -> List[Dict]:
         return presets
     
     for file in presets_dir.glob("*.json"):
-        if file.name == "credit.txt":
-            continue
         try:
             with open(file, "r", encoding="utf-8") as f:
                 data = json.load(f)
@@ -220,71 +218,87 @@ def is_preset_installed(preset_name: str) -> bool:
 def install_preset(preset: Dict) -> tuple[bool, str]:
     if not preset or not preset.get("path"):
         return False, "Invalid preset data: missing path"
-    
-    ee_dir = get_easyeffects_presets_dir()
-    
-    if not ee_dir:
+
+    ee_dirs = get_all_easyeffects_presets_dirs()
+    if not ee_dirs:
         return False, "Could not determine EasyEffects presets directory. Please set XDG_CONFIG_HOME."
-    
+
     src_path = Path(preset["path"])
     if not src_path.exists():
         return False, f"Preset file not found: {preset['name']}"
-    
-    try:
-        ee_dir.mkdir(parents=True, exist_ok=True)
-        
-        dest_path = ee_dir / preset["filename"]
-        shutil.copy2(src_path, dest_path)
-        
-        _clear_cache()
-        
-        return True, str(dest_path)
-    except PermissionError:
-        return False, f"Permission denied. Cannot write to {ee_dir}. Check folder permissions."
-    except Exception as e:
-        logger.error(f"Failed to install preset: {e}")
-        return False, f"Installation failed: {str(e)}"
+
+    written_paths: List[str] = []
+    failures: List[str] = []
+    for ee_dir in ee_dirs:
+        try:
+            ee_dir.mkdir(parents=True, exist_ok=True)
+            dest_path = ee_dir / preset["filename"]
+            shutil.copy2(src_path, dest_path)
+            written_paths.append(str(dest_path))
+        except PermissionError:
+            failures.append(f"{ee_dir}: permission denied")
+        except Exception as e:
+            logger.error(f"Failed to install preset to {ee_dir}: {e}")
+            failures.append(f"{ee_dir}: {e}")
+
+    _clear_cache()
+
+    if written_paths:
+        msg = " + ".join(written_paths)
+        if failures:
+            msg += f" (warnings: {'; '.join(failures)})"
+        return True, msg
+
+    return False, "; ".join(failures) or "Installation failed for all detected directories"
 
 def install_multiple_presets(presets: List[Dict]) -> tuple[bool, str]:
     if not presets:
         return True, "No presets selected for installation"
-    
-    ee_dir = get_easyeffects_presets_dir()
-    
-    if not ee_dir:
+
+    ee_dirs = get_all_easyeffects_presets_dirs()
+    if not ee_dirs:
         return False, "Could not determine EasyEffects presets directory. Please set XDG_CONFIG_HOME."
-    
-    try:
-        ee_dir.mkdir(parents=True, exist_ok=True)
-        
-        installed = []
-        failed = []
-        
-        for preset in presets:
+
+    # Best-effort mkdir up front; per-preset writes still tolerate per-dir failures.
+    for ee_dir in ee_dirs:
+        try:
+            ee_dir.mkdir(parents=True, exist_ok=True)
+        except Exception as e:
+            logger.warning(f"Could not create {ee_dir}: {e}")
+
+    installed: List[str] = []
+    failed: List[str] = []
+
+    for preset in presets:
+        src_path = Path(preset["path"])
+        if not src_path.exists():
+            failed.append(f"{preset['name']}: file not found")
+            continue
+
+        any_written = False
+        per_preset_errors: List[str] = []
+        for ee_dir in ee_dirs:
             try:
-                src_path = Path(preset["path"])
-                if not src_path.exists():
-                    failed.append(f"{preset['name']}: file not found")
-                    continue
-                    
                 dest_path = ee_dir / preset["filename"]
                 shutil.copy2(src_path, dest_path)
-                installed.append(preset["name"])
+                any_written = True
             except Exception as e:
-                failed.append(f"{preset['name']}: {str(e)}")
-        
-        _clear_cache()
-        
-        if failed and not installed:
-            return False, f"All installations failed. Errors: {', '.join(failed)}"
-        
-        if failed:
-            return True, f"Installed: {', '.join(installed)}. Failed: {', '.join(failed)}"
-        
-        return True, f"Successfully installed {len(installed)} preset(s): {', '.join(installed)}"
-    except Exception as e:
-        logger.error(f"Failed to install presets: {e}")
-        return False, f"Installation failed: {str(e)}"
+                per_preset_errors.append(f"{ee_dir}: {e}")
+
+        if any_written:
+            installed.append(preset["name"])
+        else:
+            failed.append(f"{preset['name']}: {'; '.join(per_preset_errors)}")
+
+    _clear_cache()
+
+    if failed and not installed:
+        return False, f"All installations failed. Errors: {', '.join(failed)}"
+
+    if failed:
+        return True, f"Installed: {', '.join(installed)}. Failed: {', '.join(failed)}"
+
+    return True, f"Successfully installed {len(installed)} preset(s): {', '.join(installed)}"
 
 def remove_preset(preset_name: str) -> tuple[bool, str]:
     if not preset_name:

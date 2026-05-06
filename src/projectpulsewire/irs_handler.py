@@ -245,71 +245,86 @@ def is_irs_installed(irs_name: str) -> bool:
 def install_irs(irs_file: Dict) -> tuple[bool, str]:
     if not irs_file or not irs_file.get("path"):
         return False, "Invalid IRS data: missing path"
-    
-    convolver_dir = get_easyeffects_convolver_dir()
-    
-    if not convolver_dir:
+
+    convolver_dirs = get_all_convolver_dirs()
+    if not convolver_dirs:
         return False, "Could not determine EasyEffects convolver directory. Please set XDG_CONFIG_HOME."
-    
+
     src_path = Path(irs_file["path"])
     if not src_path.exists():
         return False, f"IRS file not found: {irs_file['name']}"
-    
-    try:
-        convolver_dir.mkdir(parents=True, exist_ok=True)
-        
-        dest_path = convolver_dir / irs_file["filename"]
-        shutil.copy2(src_path, dest_path)
-        
-        _clear_cache()
-        
-        return True, str(dest_path)
-    except PermissionError:
-        return False, f"Permission denied. Cannot write to {convolver_dir}. Check folder permissions."
-    except Exception as e:
-        logger.error(f"Failed to install IRS: {e}")
-        return False, f"Installation failed: {str(e)}"
+
+    written_paths: List[str] = []
+    failures: List[str] = []
+    for convolver_dir in convolver_dirs:
+        try:
+            convolver_dir.mkdir(parents=True, exist_ok=True)
+            dest_path = convolver_dir / irs_file["filename"]
+            shutil.copy2(src_path, dest_path)
+            written_paths.append(str(dest_path))
+        except PermissionError:
+            failures.append(f"{convolver_dir}: permission denied")
+        except Exception as e:
+            logger.error(f"Failed to install IRS to {convolver_dir}: {e}")
+            failures.append(f"{convolver_dir}: {e}")
+
+    _clear_cache()
+
+    if written_paths:
+        msg = " + ".join(written_paths)
+        if failures:
+            msg += f" (warnings: {'; '.join(failures)})"
+        return True, msg
+
+    return False, "; ".join(failures) or "Installation failed for all detected directories"
 
 def install_multiple_irs(irs_files: List[Dict]) -> tuple[bool, str]:
     if not irs_files:
         return True, "No IRS files selected for installation"
-    
-    convolver_dir = get_easyeffects_convolver_dir()
-    
-    if not convolver_dir:
+
+    convolver_dirs = get_all_convolver_dirs()
+    if not convolver_dirs:
         return False, "Could not determine EasyEffects convolver directory. Please set XDG_CONFIG_HOME."
-    
-    try:
-        convolver_dir.mkdir(parents=True, exist_ok=True)
-        
-        installed = []
-        failed = []
-        
-        for irs_file in irs_files:
+
+    for convolver_dir in convolver_dirs:
+        try:
+            convolver_dir.mkdir(parents=True, exist_ok=True)
+        except Exception as e:
+            logger.warning(f"Could not create {convolver_dir}: {e}")
+
+    installed: List[str] = []
+    failed: List[str] = []
+
+    for irs_file in irs_files:
+        src_path = Path(irs_file["path"])
+        if not src_path.exists():
+            failed.append(f"{irs_file['name']}: file not found")
+            continue
+
+        any_written = False
+        per_irs_errors: List[str] = []
+        for convolver_dir in convolver_dirs:
             try:
-                src_path = Path(irs_file["path"])
-                if not src_path.exists():
-                    failed.append(f"{irs_file['name']}: file not found")
-                    continue
-                    
                 dest_path = convolver_dir / irs_file["filename"]
                 shutil.copy2(src_path, dest_path)
-                installed.append(irs_file["name"])
+                any_written = True
             except Exception as e:
-                failed.append(f"{irs_file['name']}: {str(e)}")
-        
-        _clear_cache()
-        
-        if failed and not installed:
-            return False, f"All installations failed. Errors: {', '.join(failed)}"
-        
-        if failed:
-            return True, f"Installed: {', '.join(installed)}. Failed: {', '.join(failed)}"
-        
-        return True, f"Successfully installed {len(installed)} IRS file(s): {', '.join(installed)}"
-    except Exception as e:
-        logger.error(f"Failed to install IRS files: {e}")
-        return False, f"Installation failed: {str(e)}"
+                per_irs_errors.append(f"{convolver_dir}: {e}")
+
+        if any_written:
+            installed.append(irs_file["name"])
+        else:
+            failed.append(f"{irs_file['name']}: {'; '.join(per_irs_errors)}")
+
+    _clear_cache()
+
+    if failed and not installed:
+        return False, f"All installations failed. Errors: {', '.join(failed)}"
+
+    if failed:
+        return True, f"Installed: {', '.join(installed)}. Failed: {', '.join(failed)}"
+
+    return True, f"Successfully installed {len(installed)} IRS file(s): {', '.join(installed)}"
 
 def remove_irs(irs_name: str) -> tuple[bool, str]:
     if not irs_name:

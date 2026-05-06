@@ -9,11 +9,13 @@ from pathlib import Path
 from typing import Optional
 from datetime import datetime, timedelta, timezone
 
-if hasattr(sys.stdout, 'reconfigure') and sys.stdout.encoding.lower() != 'utf-8':
-    try:
-        sys.stdout.reconfigure(encoding='utf-8')
-    except Exception:
-        pass
+if hasattr(sys.stdout, 'reconfigure'):
+    encoding = getattr(sys.stdout, 'encoding', None) or ''
+    if encoding.lower() != 'utf-8':
+        try:
+            sys.stdout.reconfigure(encoding='utf-8')
+        except Exception:
+            pass
 
 import typer
 from rich.console import Console
@@ -145,12 +147,16 @@ def fetch_latest_version_from_pypi() -> str:
 
 
 def get_current_installed_version() -> str:
-    current_result = subprocess.run(
-        ["pip", "show", "projectpulsewire"],
-        capture_output=True,
-        text=True,
-        timeout=15,
-    )
+    try:
+        current_result = subprocess.run(
+            [sys.executable, "-m", "pip", "show", "projectpulsewire"],
+            capture_output=True,
+            text=True,
+            timeout=15,
+        )
+    except (FileNotFoundError, OSError, subprocess.TimeoutExpired) as exc:
+        logger.debug(f"pip show failed, falling back to __version__: {exc}")
+        return __version__
 
     for line in current_result.stdout.splitlines():
         if line.startswith("Version:"):
@@ -160,12 +166,17 @@ def get_current_installed_version() -> str:
 
 
 def perform_package_update() -> tuple[bool, str]:
-    update_result = subprocess.run(
-        ["pip", "install", "--upgrade", "projectpulsewire"],
-        capture_output=True,
-        text=True,
-        timeout=180,
-    )
+    try:
+        update_result = subprocess.run(
+            [sys.executable, "-m", "pip", "install", "--upgrade", "projectpulsewire"],
+            capture_output=True,
+            text=True,
+            timeout=180,
+        )
+    except (FileNotFoundError, OSError) as exc:
+        return False, f"pip is not available: {exc}"
+    except subprocess.TimeoutExpired:
+        return False, "pip install timed out after 3 minutes."
 
     if update_result.returncode == 0:
         return True, "You are now running the latest version."
@@ -201,7 +212,7 @@ def maybe_run_auto_update_check() -> None:
 
     try:
         latest_version = fetch_latest_version_from_pypi()
-    except (urllib.error.URLError, json.JSONDecodeError, Exception) as exc:
+    except Exception as exc:  # network / parse / anything else
         logger.debug(f"Auto update check skipped: {exc}")
         save_update_cache({
             "last_checked_at": now_iso,
@@ -1239,7 +1250,7 @@ def handle_update() -> None:
 
     try:
         latest_version = fetch_latest_version_from_pypi()
-    except (urllib.error.URLError, json.JSONDecodeError, Exception) as e:
+    except Exception as e:  # network / parse / anything else
         logger.error(f"Failed to fetch latest version from PyPI: {e}")
         print_error_context(
             "Could not check for updates",
