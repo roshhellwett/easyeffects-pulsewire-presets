@@ -7,7 +7,7 @@ from typing import List, Dict, Optional
 
 logger = logging.getLogger(__name__)
 
-_presets_cache = None
+_presets_cache = {}
 _installed_cache = None
 _selected_preset_source = "modernpresets"  # Default preset source
 
@@ -26,6 +26,7 @@ def _find_package_data_dir(preset_source: str = None) -> Path:
     """
     if preset_source is None:
         preset_source = _selected_preset_source
+    preset_source = _normalize_preset_source(preset_source)
     
     package_dir = Path(__file__).parent
     presets_dir = package_dir / preset_source
@@ -43,8 +44,21 @@ def _find_package_data_dir(preset_source: str = None) -> Path:
 def _clear_cache() -> None:
     """Clear all caches - call this when presets are installed/removed."""
     global _presets_cache, _installed_cache
-    _presets_cache = None
+    _presets_cache = {}
     _installed_cache = None
+
+
+def _normalize_preset_source(source: str) -> str:
+    """Resolve user-facing source aliases to package directory names."""
+    return PRESET_SOURCES.get(source, source)
+
+
+def _is_root_config_path(path: str) -> bool:
+    """Return True when XDG_CONFIG_HOME points at root's config directory."""
+    try:
+        return Path(path).expanduser().resolve() == Path("/root/.config")
+    except OSError:
+        return path.startswith("/root")
 
 def get_available_preset_sources() -> List[str]:
     """Get list of available preset sources."""
@@ -66,6 +80,7 @@ def set_active_preset_source(source: str) -> bool:
         True if source was set successfully, False if source doesn't exist
     """
     global _selected_preset_source
+    source = _normalize_preset_source(source)
     
     source_path = Path(__file__).parent / source
     if not source_path.exists() or not any(source_path.glob("*.json")):
@@ -122,7 +137,7 @@ def get_easyeffects_presets_dir(preset_type: str = "output") -> Optional[Path]:
                      Defaults to 'output'.
     """
     xdg_config = os.environ.get("XDG_CONFIG_HOME")
-    if not xdg_config or (os.environ.get("SUDO_USER") and xdg_config.startswith("/root")):
+    if not xdg_config or (os.environ.get("SUDO_USER") and _is_root_config_path(xdg_config)):
         xdg_config = str(_get_real_home() / ".config")
         
     native_dir = Path(xdg_config) / "easyeffects" / preset_type
@@ -147,7 +162,7 @@ def get_all_easyeffects_presets_dirs(preset_type: str = "output") -> List[Path]:
     """
     dirs = []
     xdg_config = os.environ.get("XDG_CONFIG_HOME")
-    if not xdg_config or (os.environ.get("SUDO_USER") and xdg_config.startswith("/root")):
+    if not xdg_config or (os.environ.get("SUDO_USER") and _is_root_config_path(xdg_config)):
         xdg_config = str(_get_real_home() / ".config")
     
     native_dir = Path(xdg_config) / "easyeffects" / preset_type
@@ -176,10 +191,12 @@ def get_all_presets(force_refresh: bool = False, preset_source: str = None) -> L
     if force_refresh:
         _clear_cache()
     
-    if _presets_cache is not None:
-        return _presets_cache
+    resolved_source = _normalize_preset_source(preset_source or _selected_preset_source)
+
+    if resolved_source in _presets_cache:
+        return _presets_cache[resolved_source]
     
-    presets_dir = get_presets_dir(preset_source)
+    presets_dir = get_presets_dir(resolved_source)
     presets = []
     
     if not presets_dir.exists():
@@ -195,14 +212,14 @@ def get_all_presets(force_refresh: bool = False, preset_source: str = None) -> L
                     "filename": file.name,
                     "path": str(file),
                     "data": data,
-                    "source": get_active_preset_source(),
+                    "source": resolved_source,
                 }
                 presets.append(preset_info)
         except (json.JSONDecodeError, IOError) as e:
             logger.error(f"Error loading preset {file.name}: {e}")
     
-    _presets_cache = sorted(presets, key=lambda x: x["name"].lower())
-    return _presets_cache
+    _presets_cache[resolved_source] = sorted(presets, key=lambda x: x["name"].lower())
+    return _presets_cache[resolved_source]
 
 def get_preset_by_name(name: str) -> Optional[Dict]:
     all_presets = get_all_presets()
@@ -270,8 +287,9 @@ def get_installed_presets(force_refresh: bool = False) -> List[str]:
     
     installed = []
     for preset_type in ("output", "input"):
-        ee_dir = get_easyeffects_presets_dir(preset_type)
-        if ee_dir and ee_dir.exists():
+        for ee_dir in get_all_easyeffects_presets_dirs(preset_type):
+            if not ee_dir.exists():
+                continue
             for file in ee_dir.glob("*.json"):
                 installed.append(file.stem)
     
@@ -371,30 +389,39 @@ def remove_preset(preset_name: str) -> tuple[bool, str]:
     if not preset_name:
         return False, "Preset name cannot be empty"
     
-    preset_file = None
+    matched_files: List[Path] = []
     for preset_type in ("output", "input"):
-        ee_dir = get_easyeffects_presets_dir(preset_type)
-        if not ee_dir or not ee_dir.exists():
-            continue
-        for file in ee_dir.glob("*.json"):
-            if file.stem.lower() == preset_name.lower():
-                preset_file = file
-                break
-        if preset_file:
-            break
-    
-    if not preset_file:
+        for ee_dir in get_all_easyeffects_presets_dirs(preset_type):
+            if not ee_dir.exists():
+                continue
+            for file in ee_dir.glob("*.json"):
+                if file.stem.lower() == preset_name.lower():
+                    matched_files.append(file)
+
+    if not matched_files:
         return False, f"Preset '{preset_name}' not found in EasyEffects presets"
     
-    try:
-        preset_file.unlink()
-        _clear_cache()
-        return True, f"Removed preset: {preset_name}"
-    except PermissionError:
-        return False, f"Permission denied. Cannot remove {preset_name}. Check folder permissions."
-    except Exception as e:
-        logger.error(f"Failed to remove preset: {e}")
-        return False, f"Removal failed: {str(e)}"
+    removed: List[str] = []
+    failures: List[str] = []
+    for preset_file in matched_files:
+        try:
+            preset_file.unlink()
+            removed.append(str(preset_file))
+        except PermissionError:
+            failures.append(f"{preset_file}: permission denied")
+        except Exception as e:
+            logger.error(f"Failed to remove preset: {e}")
+            failures.append(f"{preset_file}: {str(e)}")
+
+    _clear_cache()
+
+    if removed:
+        message = f"Removed preset from {len(removed)} location(s): {preset_name}"
+        if failures:
+            message += f" (warnings: {'; '.join(failures)})"
+        return True, message
+
+    return False, "; ".join(failures) or f"Could not remove preset: {preset_name}"
 
 def remove_multiple_presets(preset_names: List[str]) -> tuple[bool, str]:
     if not preset_names:
@@ -404,24 +431,11 @@ def remove_multiple_presets(preset_names: List[str]) -> tuple[bool, str]:
     failed = []
     
     for preset_name in preset_names:
-        found = False
-        for preset_type in ("output", "input"):
-            ee_dir = get_easyeffects_presets_dir(preset_type)
-            if not ee_dir or not ee_dir.exists():
-                continue
-            for file in ee_dir.glob("*.json"):
-                if file.stem.lower() == preset_name.lower():
-                    found = True
-                    try:
-                        file.unlink()
-                        removed.append(file.stem)
-                    except Exception as e:
-                        failed.append(f"{preset_name}: {str(e)}")
-                    break
-            if found:
-                break
-        if not found:
-            failed.append(f"{preset_name}: not found")
+        success, message = remove_preset(preset_name)
+        if success:
+            removed.append(preset_name)
+        else:
+            failed.append(f"{preset_name}: {message}")
     
     _clear_cache()
     

@@ -2,20 +2,13 @@ import os
 import sys
 import json
 import logging
+import errno
 import subprocess
 import urllib.request
 import urllib.error
 from pathlib import Path
 from typing import Optional
 from datetime import datetime, timedelta, timezone
-
-if hasattr(sys.stdout, 'reconfigure'):
-    encoding = getattr(sys.stdout, 'encoding', None) or ''
-    if encoding.lower() != 'utf-8':
-        try:
-            sys.stdout.reconfigure(encoding='utf-8')
-        except Exception:
-            pass
 
 import typer
 from rich.console import Console
@@ -29,14 +22,73 @@ from projectpulsewire import presets as presets_module
 from projectpulsewire import irs_handler as irs_module
 from projectpulsewire import deps_installer
 
+if hasattr(sys.stdout, "reconfigure"):
+    encoding = getattr(sys.stdout, "encoding", None) or ""
+    if encoding.lower() != "utf-8":
+        try:
+            sys.stdout.reconfigure(encoding="utf-8")
+        except Exception:
+            pass
+
+
+class SafeOutputStream:
+    """Stream wrapper that keeps closed downstream pipes from printing tracebacks."""
+
+    def __init__(self, stream):
+        self._stream = stream
+        self._pipe_closed = False
+
+    def write(self, text):
+        if self._pipe_closed:
+            return len(text)
+        try:
+            return self._stream.write(text)
+        except (BrokenPipeError, OSError) as exc:
+            if isinstance(exc, BrokenPipeError) or getattr(exc, "errno", None) in {errno.EPIPE, errno.EINVAL}:
+                self._pipe_closed = True
+                return len(text)
+            raise
+
+    def flush(self):
+        if self._pipe_closed:
+            return None
+        try:
+            return self._stream.flush()
+        except (BrokenPipeError, OSError) as exc:
+            if isinstance(exc, BrokenPipeError) or getattr(exc, "errno", None) in {errno.EPIPE, errno.EINVAL}:
+                self._pipe_closed = True
+                return None
+            raise
+
+    def __getattr__(self, name):
+        return getattr(self._stream, name)
+
+
+sys.stdout = SafeOutputStream(sys.stdout)
+
 logging.basicConfig(level=logging.INFO, format="%(levelname)s: %(message)s")
 logger = logging.getLogger(__name__)
 
 UPDATE_CHECK_INTERVAL_HOURS = 24
 PYPI_JSON_URL = "https://pypi.org/pypi/projectpulsewire/json"
 
+class ProjectPulseWireConsole(Console):
+    """Console that exits cleanly when downstream pipes stop reading."""
+
+    def _write_buffer(self) -> None:
+        try:
+            super()._write_buffer()
+        except (BrokenPipeError, OSError) as exc:
+            if isinstance(exc, BrokenPipeError) or getattr(exc, "errno", None) in {errno.EPIPE, errno.EINVAL}:
+                raise typer.Exit(code=0) from None
+            raise
+
+
 app = typer.Typer(help="projectpulsewire — EasyEffects presets for PipeWire/PulseAudio", add_completion=False)
-console = Console()
+console = ProjectPulseWireConsole(
+    force_terminal=sys.stdout.isatty(),
+    color_system="auto" if sys.stdout.isatty() else None,
+)
 
 def is_interactive() -> bool:
     return sys.stdin.isatty()
@@ -1283,7 +1335,7 @@ def handle_switch_preset_source() -> None:
         is_current = " [bold green]✓ (Currently Active)[/]" if source == current_source else ""
         console.print(f"  [bold white on #8a2be2] {i} [/]  {display_name}{is_current}")
     
-    console.print(f"  [bold white on #555555] B [/]  [bold]Back to main menu[/]")
+    console.print("  [bold white on #555555] B [/]  [bold]Back to main menu[/]")
     
     console.print()
     choice = safe_input(">> Select source: ").strip().lower()
@@ -1306,7 +1358,7 @@ def handle_switch_preset_source() -> None:
     if presets_module.set_active_preset_source(selected_source):
         source_display = source_display_map.get(selected_source, selected_source)
         print_success(
-            f"Preset source switched!",
+            "Preset source switched!",
             f"Now using: {source_display}\n\nYou can now browse and install presets from the selected source."
         )
     else:
@@ -1368,7 +1420,7 @@ def handle_update() -> None:
 def handle_irs_guide() -> None:
     """Comprehensive IRS education screen."""
     console.clear()
-    console.print(Panel(f"""
+    console.print(Panel("""
 [bold #ffa500]🎓 What are IRS (Impulse Response) Files?[/]
 
 [bold white]An IRS file captures the sonic fingerprint of a real acoustic space
@@ -1547,7 +1599,7 @@ def handle_setup_audio() -> None:
 
 
 def handle_help() -> None:
-    console.print(f"""
+    console.print("""
 [bold cyan]--- Help & Commands ---[/bold cyan]
 
 [bold yellow]Quick Commands:[/bold yellow]

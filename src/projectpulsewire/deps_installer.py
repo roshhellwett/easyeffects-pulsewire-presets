@@ -10,7 +10,6 @@ Detects the Linux distribution and checks/installs essential audio packages:
 Supports: Ubuntu/Debian, Fedora, Arch, openSUSE, and Flatpak.
 """
 
-import os
 import subprocess
 import shutil
 import logging

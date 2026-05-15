@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "projectpulsewire"
-version = "3.0.0"
+version = "3.0.1"
 description = "Premium CLI to install and manage professionally-tuned EasyEffects presets, IRS files, and Linux audio dependencies"
 readme = "readme.md"
 license = "MIT"
@@ -45,3 +45,7 @@ where = ["src"]
 
 [tool.setuptools.package-data]
 projectpulsewire = ["modernpresets/*.json", "legacypresets/*.json", "irs/*.irs"]
+
+[tool.pytest.ini_options]
+pythonpath = ["src"]
+testpaths = ["tests"]

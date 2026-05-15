@@ -1,4 +1,5 @@
-import sys, os, pathlib
+import pathlib
+import sys
 sys.path.insert(0, r'D:\projectpulsewire\src')
 
 import projectpulsewire.presets as presets_mod

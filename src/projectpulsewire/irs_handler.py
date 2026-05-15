@@ -52,13 +52,21 @@ def _get_flatpak_config() -> Optional[Path]:
     return None
 
 
+def _is_root_config_path(path: str) -> bool:
+    """Return True when XDG_CONFIG_HOME points at root's config directory."""
+    try:
+        return Path(path).expanduser().resolve() == Path("/root/.config")
+    except OSError:
+        return path.startswith("/root")
+
+
 def get_easyeffects_convolver_dir() -> Optional[Path]:
     """Get the EasyEffects convolver/IRS directory.
     
     Checks both native and Flatpak paths, preferring native.
     """
     xdg_config = os.environ.get("XDG_CONFIG_HOME")
-    if not xdg_config or (os.environ.get("SUDO_USER") and xdg_config.startswith("/root")):
+    if not xdg_config or (os.environ.get("SUDO_USER") and _is_root_config_path(xdg_config)):
         xdg_config = str(_get_real_home() / ".config")
         
     native_dir = Path(xdg_config) / "easyeffects" / "irs"
@@ -77,7 +85,7 @@ def get_all_convolver_dirs() -> List[Path]:
     """Get ALL convolver directories (native + Flatpak)."""
     dirs = []
     xdg_config = os.environ.get("XDG_CONFIG_HOME")
-    if not xdg_config or (os.environ.get("SUDO_USER") and xdg_config.startswith("/root")):
+    if not xdg_config or (os.environ.get("SUDO_USER") and _is_root_config_path(xdg_config)):
         xdg_config = str(_get_real_home() / ".config")
     
     native_dir = Path(xdg_config) / "easyeffects" / "irs"
@@ -226,16 +234,14 @@ def get_installed_irs(force_refresh: bool = False) -> List[str]:
     if _installed_irs_cache is not None:
         return _installed_irs_cache
     
-    convolver_dir = get_easyeffects_convolver_dir()
-    if not convolver_dir or not convolver_dir.exists():
-        _installed_irs_cache = []
-        return _installed_irs_cache
-    
     installed = []
-    for file in convolver_dir.glob("*.irs"):
-        installed.append(file.stem)
+    for convolver_dir in get_all_convolver_dirs():
+        if not convolver_dir.exists():
+            continue
+        for file in convolver_dir.glob("*.irs"):
+            installed.append(file.stem)
     
-    _installed_irs_cache = sorted(installed)
+    _installed_irs_cache = sorted(list(set(installed)))
     return _installed_irs_cache
 
 def is_irs_installed(irs_name: str) -> bool:
@@ -330,55 +336,52 @@ def remove_irs(irs_name: str) -> tuple[bool, str]:
     if not irs_name:
         return False, "IRS name cannot be empty"
     
-    convolver_dir = get_easyeffects_convolver_dir()
+    matched_files: List[Path] = []
+    for convolver_dir in get_all_convolver_dirs():
+        if not convolver_dir.exists():
+            continue
+        for file in convolver_dir.glob("*.irs"):
+            if file.stem.lower() == irs_name.lower():
+                matched_files.append(file)
     
-    if not convolver_dir or not convolver_dir.exists():
-        return False, "EasyEffects convolver directory not found. Is EasyEffects installed?"
-    
-    irs_file = None
-    for file in convolver_dir.glob("*.irs"):
-        if file.stem.lower() == irs_name.lower():
-            irs_file = file
-            break
-    
-    if not irs_file:
+    if not matched_files:
         return False, f"IRS '{irs_name}' not found in convolver folder"
     
-    try:
-        irs_file.unlink()
-        _clear_cache()
-        return True, f"Removed IRS: {irs_name}"
-    except PermissionError:
-        return False, f"Permission denied. Cannot remove {irs_name}. Check folder permissions."
-    except Exception as e:
-        logger.error(f"Failed to remove IRS: {e}")
-        return False, f"Removal failed: {str(e)}"
+    removed: List[str] = []
+    failures: List[str] = []
+    for irs_file in matched_files:
+        try:
+            irs_file.unlink()
+            removed.append(str(irs_file))
+        except PermissionError:
+            failures.append(f"{irs_file}: permission denied")
+        except Exception as e:
+            logger.error(f"Failed to remove IRS: {e}")
+            failures.append(f"{irs_file}: {str(e)}")
+
+    _clear_cache()
+
+    if removed:
+        message = f"Removed IRS from {len(removed)} location(s): {irs_name}"
+        if failures:
+            message += f" (warnings: {'; '.join(failures)})"
+        return True, message
+
+    return False, "; ".join(failures) or f"Could not remove IRS: {irs_name}"
 
 def remove_multiple_irs(irs_names: List[str]) -> tuple[bool, str]:
     if not irs_names:
         return True, "No IRS files selected for removal"
     
-    convolver_dir = get_easyeffects_convolver_dir()
-    
-    if not convolver_dir or not convolver_dir.exists():
-        return False, "EasyEffects convolver directory not found. Is EasyEffects installed?"
-    
     removed = []
     failed = []
     
     for irs_name in irs_names:
-        found = False
-        for file in convolver_dir.glob("*.irs"):
-            if file.stem.lower() == irs_name.lower():
-                found = True
-                try:
-                    file.unlink()
-                    removed.append(file.stem)
-                except Exception as e:
-                    failed.append(f"{irs_name}: {str(e)}")
-                break
-        if not found:
-            failed.append(f"{irs_name}: not found")
+        success, message = remove_irs(irs_name)
+        if success:
+            removed.append(irs_name)
+        else:
+            failed.append(f"{irs_name}: {message}")
     
     _clear_cache()
     
