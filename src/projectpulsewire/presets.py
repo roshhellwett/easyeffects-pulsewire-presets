@@ -9,20 +9,35 @@ logger = logging.getLogger(__name__)
 
 _presets_cache = None
 _installed_cache = None
+_selected_preset_source = "modernpresets"  # Default preset source
 
-def _find_package_data_dir() -> Path:
-    """Find the presets directory (works both in dev and installed mode)."""
+# Map for preset folder names
+PRESET_SOURCES = {
+    "modern": "modernpresets",
+    "legacy": "legacypresets",
+}
+
+def _find_package_data_dir(preset_source: str = None) -> Path:
+    """Find the presets directory (works both in dev and installed mode).
+    
+    Args:
+        preset_source: Either 'modernpresets' or 'legacypresets'. 
+                      Defaults to the currently selected source.
+    """
+    if preset_source is None:
+        preset_source = _selected_preset_source
+    
     package_dir = Path(__file__).parent
-    presets_dir = package_dir / "presets"
+    presets_dir = package_dir / preset_source
     
     if presets_dir.exists() and any(presets_dir.glob("*.json")):
         return presets_dir
     
-    dev_presets = package_dir.parent.parent / "presets"
+    dev_presets = package_dir.parent.parent / preset_source
     if dev_presets.exists() and any(dev_presets.glob("*.json")):
         return dev_presets
     
-    logger.warning(f"Presets directory not found. Searched: {presets_dir}, {dev_presets}")
+    logger.warning(f"Presets directory not found for source '{preset_source}'. Searched: {presets_dir}, {dev_presets}")
     return presets_dir
 
 def _clear_cache() -> None:
@@ -31,8 +46,50 @@ def _clear_cache() -> None:
     _presets_cache = None
     _installed_cache = None
 
-def get_presets_dir() -> Path:
-    return _find_package_data_dir()
+def get_available_preset_sources() -> List[str]:
+    """Get list of available preset sources."""
+    sources = []
+    package_dir = Path(__file__).parent
+    for source_name in PRESET_SOURCES.values():
+        source_dir = package_dir / source_name
+        if source_dir.exists() and any(source_dir.glob("*.json")):
+            sources.append(source_name)
+    return sorted(sources)
+
+def set_active_preset_source(source: str) -> bool:
+    """Set the active preset source.
+    
+    Args:
+        source: Either 'modernpresets' or 'legacypresets'
+        
+    Returns:
+        True if source was set successfully, False if source doesn't exist
+    """
+    global _selected_preset_source
+    
+    source_path = Path(__file__).parent / source
+    if not source_path.exists() or not any(source_path.glob("*.json")):
+        logger.error(f"Preset source '{source}' not found or empty")
+        return False
+    
+    _selected_preset_source = source
+    _clear_cache()
+    return True
+
+def get_active_preset_source() -> str:
+    """Get the currently active preset source."""
+    return _selected_preset_source
+
+def get_presets_dir(preset_source: str = None) -> Path:
+    """Get the presets directory path.
+    
+    Args:
+        preset_source: Optional specific preset source. If None, uses the active source.
+        
+    Returns:
+        Path to the presets directory
+    """
+    return _find_package_data_dir(preset_source)
 
 def _get_real_home() -> Path:
     sudo_user = os.environ.get("SUDO_USER")
@@ -104,7 +161,16 @@ def get_all_easyeffects_presets_dirs(preset_type: str = "output") -> List[Path]:
     
     return dirs
 
-def get_all_presets(force_refresh: bool = False) -> List[Dict]:
+def get_all_presets(force_refresh: bool = False, preset_source: str = None) -> List[Dict]:
+    """Get all presets from the specified or active preset source.
+    
+    Args:
+        force_refresh: Whether to bypass cache and reload
+        preset_source: Optional specific preset source. If None, uses the active source.
+        
+    Returns:
+        List of preset dictionaries
+    """
     global _presets_cache
     
     if force_refresh:
@@ -113,7 +179,7 @@ def get_all_presets(force_refresh: bool = False) -> List[Dict]:
     if _presets_cache is not None:
         return _presets_cache
     
-    presets_dir = get_presets_dir()
+    presets_dir = get_presets_dir(preset_source)
     presets = []
     
     if not presets_dir.exists():
@@ -129,6 +195,7 @@ def get_all_presets(force_refresh: bool = False) -> List[Dict]:
                     "filename": file.name,
                     "path": str(file),
                     "data": data,
+                    "source": get_active_preset_source(),
                 }
                 presets.append(preset_info)
         except (json.JSONDecodeError, IOError) as e:

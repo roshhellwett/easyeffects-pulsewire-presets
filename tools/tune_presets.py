@@ -809,14 +809,21 @@ VOICINGS: list[dict] = [
 
 def main() -> int:
     here = Path(__file__).resolve().parent
-    default_out = here.parent / "src" / "projectpulsewire" / "presets"
+    default_out = here.parent / "src" / "projectpulsewire" / "modernpresets"
 
     parser = argparse.ArgumentParser(description=__doc__.splitlines()[1])
     parser.add_argument("--out", type=Path, default=default_out,
                         help=f"Output directory (default: {default_out})")
+    parser.add_argument("--source", choices=["modern", "legacy"], default="modern",
+                        help="Preset source to generate for (default: modern)")
     parser.add_argument("--check", action="store_true",
                         help="Validate only; do not write files.")
     args = parser.parse_args()
+    
+    # If --source is specified, use that to determine the output directory
+    if hasattr(args, 'source') and args.source:
+        source_name = f"{args.source}presets"
+        args.out = here.parent / "src" / "projectpulsewire" / source_name
 
     args.out.mkdir(parents=True, exist_ok=True)
 

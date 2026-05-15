@@ -5,7 +5,8 @@ include security.md
 include pyproject.toml
 include MANIFEST.in
 recursive-include src *.py
-recursive-include src/projectpulsewire/presets *.json
+recursive-include src/projectpulsewire/modernpresets *.json
+recursive-include src/projectpulsewire/legacypresets *.json
 recursive-include src/projectpulsewire/irs *.irs
 global-exclude __pycache__
 global-exclude *.py[co]

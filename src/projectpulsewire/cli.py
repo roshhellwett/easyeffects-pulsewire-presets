@@ -254,6 +254,15 @@ def maybe_run_auto_update_check() -> None:
 
 def show_main_menu() -> str:
     console.clear()
+    
+    # Get current active preset source
+    active_source = presets_module.get_active_preset_source()
+    source_display_map = {
+        "modernpresets": "Modern Presets (Categorized)",
+        "legacypresets": "Legacy Presets (Original)"
+    }
+    source_display = source_display_map.get(active_source, active_source)
+    
     all_presets = presets_module.get_all_presets()
     installed_presets = presets_module.get_installed_presets()
     ee_dir = presets_module.get_easyeffects_presets_dir()
@@ -271,6 +280,7 @@ def show_main_menu() -> str:
 [bold #ff007f]✦ Quick Stats ✦[/]
   [#00ffcc]🎧 Presets:[/] {len(all_presets)} available / [green]{len(installed_presets)} installed[/]
   [#00ffcc]💿 IRS Data:[/] {len(all_irs)} available / [green]{len(installed_irs)} installed[/]
+  [#ffa500]📁 Active Source:[/] [bold]{source_display}[/bold]
   [dim]📂 Presets Dir: {ee_dir_display}[/]
   [dim]📂 Conv Dir: {convolver_dir_display}[/]
 
@@ -282,10 +292,11 @@ def show_main_menu() -> str:
   [bold white on #8a2be2] 4 [/]  [bold]Install IRS(s)[/]  🚀
   [bold white on #00ffcc] 5 [/]  [bold]View Installed Files[/]  ✨
   [bold white on #ff4444] 6 [/]  [bold]Remove Preset(s)/IRS(s)[/]  🗑️
-  [bold white on #ffa500] 7 [/]  [bold]Update projectpulsewire[/]  ⚡
-  [bold white on #555555] 8 [/]  [bold]Help & Commands[/]  💡
-  [bold white on #00bfff] 9 [/]  [bold]IRS Guide (What are IRS files?)[/]  🎓
-  [bold white on #7b68ee] 10 [/] [bold]Setup Audio Stack (Auto-Install)[/]  🔧
+  [bold white on #ffa500] 7 [/]  [bold]Switch Preset Source[/]  🔄
+  [bold white on #ff7f50] 8 [/]  [bold]Update projectpulsewire[/]  ⚡
+  [bold white on #555555] 9 [/]  [bold]Help & Commands[/]  💡
+  [bold white on #00bfff] 10 [/] [bold]IRS Guide (What are IRS files?)[/]  🎓
+  [bold white on #7b68ee] 11 [/] [bold]Setup Audio Stack (Auto-Install)[/]  🔧
   [bold white on #555555] 0 [/]  [bold]Exit[/]  🚪
     """
     
@@ -298,7 +309,7 @@ def show_main_menu() -> str:
     ))
     console.print("[dim italic]--- Premium Audio Made Free | Developer: roshhellwett ---[/dim italic]\n")
     
-    choice = safe_input(">> [bold #ff007f]Enter your vibe (0-10):[/] ", allow_empty=False)
+    choice = safe_input(">> [bold #ff007f]Enter your vibe (0-11):[/] ", allow_empty=False)
     return choice
 
 def handle_browse_presets() -> None:
@@ -1243,6 +1254,70 @@ def handle_install_all_irs(all_irs: list, installed_irs: list) -> None:
     
     pause_for_user()
 
+def handle_switch_preset_source() -> None:
+    """Handle switching between legacy and modern presets."""
+    console.clear()
+    console.print(Panel("[bold #ffa500]🔄 Switch Preset Source[/]", border_style="#ffa500", expand=False))
+    
+    available_sources = presets_module.get_available_preset_sources()
+    current_source = presets_module.get_active_preset_source()
+    
+    if not available_sources:
+        print_error_context(
+            "No preset sources found",
+            "Neither legacypresets nor modernpresets folder has presets",
+            "Check that the preset folders exist and contain .json files"
+        )
+        pause_for_user()
+        return
+    
+    console.print("\n[bold]Available Preset Sources:[/bold]\n")
+    
+    source_display_map = {
+        "legacypresets": "Legacy Presets (Original)",
+        "modernpresets": "Modern Presets (Categorized)"
+    }
+    
+    for i, source in enumerate(available_sources, 1):
+        display_name = source_display_map.get(source, source)
+        is_current = " [bold green]✓ (Currently Active)[/]" if source == current_source else ""
+        console.print(f"  [bold white on #8a2be2] {i} [/]  {display_name}{is_current}")
+    
+    console.print(f"  [bold white on #555555] B [/]  [bold]Back to main menu[/]")
+    
+    console.print()
+    choice = safe_input(">> Select source: ").strip().lower()
+    
+    if choice == "b":
+        return
+    
+    if not choice.isdigit():
+        console.print("\n[red]Invalid input.[/red]")
+        pause_for_user()
+        return
+    
+    idx = int(choice) - 1
+    if idx < 0 or idx >= len(available_sources):
+        console.print("\n[red]Invalid choice.[/red]")
+        pause_for_user()
+        return
+    
+    selected_source = available_sources[idx]
+    if presets_module.set_active_preset_source(selected_source):
+        source_display = source_display_map.get(selected_source, selected_source)
+        print_success(
+            f"Preset source switched!",
+            f"Now using: {source_display}\n\nYou can now browse and install presets from the selected source."
+        )
+    else:
+        print_error_context(
+            "Failed to switch preset source",
+            "Could not activate the selected source",
+            "Try again or report this issue"
+        )
+    
+    pause_for_user()
+
 def handle_update() -> None:
     console.clear()
     console.print("\n[bold cyan]--- Update projectpulsewire ---[/bold cyan]\n")
@@ -1535,12 +1610,14 @@ def main_menu_loop() -> None:
             elif choice == "6":
                 handle_remove_items()
             elif choice == "7":
-                handle_update()
+                handle_switch_preset_source()
             elif choice == "8":
-                handle_help()
+                handle_update()
             elif choice == "9":
-                handle_irs_guide()
+                handle_help()
             elif choice == "10":
+                handle_irs_guide()
+            elif choice == "11":
                 handle_setup_audio()
             elif choice == "0":
                 console.print("\n[cyan]Thank you for using projectpulsewire![/cyan]")
@@ -1548,9 +1625,9 @@ def main_menu_loop() -> None:
                 break
             else:
                 if choice:
-                    console.print(f"\n[red]Invalid choice '{choice}'. Please enter 0-10.[/red]")
+                    console.print(f"\n[red]Invalid choice '{choice}'. Please enter 0-11.[/red]")
                 else:
-                    console.print("\n[red]No input received. Please enter 0-10.[/red]")
+                    console.print("\n[red]No input received. Please enter 0-11.[/red]")
                 pause_for_user()
         except KeyboardInterrupt:
             console.print("\n\n[cyan]Goodbye![/cyan]")

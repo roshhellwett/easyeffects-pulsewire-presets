@@ -1,5 +1,5 @@
 [![License](https://img.shields.io/badge/License-MIT-45b7d1?style=flat-square)](LICENSE)
-[![PyPI](https://img.shields.io/badge/PyPI-2.1.0-4ecdc4?style=flat-square)](https://pypi.org/project/projectpulsewire/)
+[![PyPI](https://img.shields.io/badge/PyPI-3.0.0-4ecdc4?style=flat-square)](https://pypi.org/project/projectpulsewire/)
 [![Platform](https://img.shields.io/badge/Platform-Linux-FCC624?style=flat-square&logo=linux)](https://github.com/roshhellwett/projectpulsewire)
 
 # PROJECT PULSEWIRE
@@ -29,16 +29,17 @@ python -m projectpulsewire start
 ### Step 3: Choose what to do!
 
 ```
- 1   Browse & Preview Presets (EQ)        ← See all available audio profiles
- 2   Browse & Preview IRS (Convolution)   ← See reverb/correction files  
- 3   Install Preset(s)                    ← Install presets to EasyEffects
- 4   Install IRS(s)                       ← Install IRS files
- 5   View Installed (Presets + IRS)       ← See what you installed
- 6   Remove Preset(s)/IRS(s)             ← Uninstall
- 7   Update projectpulsewire             ← Get new versions
- 8   Help & Commands                     ← Learn more
- 9   IRS Guide                           ← Learn what IRS files are & how to use them
-10   Setup Audio Stack                   ← Auto-detect & install audio dependencies
+ 1   Browse & Preview Presets (EQ)           ← See all available audio profiles
+ 2   Browse & Preview IRS (Convolution)      ← See reverb/correction files  
+ 3   Install Preset(s)                       ← Install presets to EasyEffects
+ 4   Install IRS(s)                          ← Install IRS files
+ 5   View Installed (Presets + IRS)          ← See what you installed
+ 6   Remove Preset(s)/IRS(s)                ← Uninstall
+ 7   Switch Preset Source                    ← Choose between Legacy or Modern presets
+ 8   Update projectpulsewire                ← Get new versions
+ 9   Help & Commands                        ← Learn more
+10   IRS Guide                              ← Learn what IRS files are & how to use them
+11   Setup Audio Stack                      ← Auto-detect & install audio dependencies
  0   Exit
 ```
 

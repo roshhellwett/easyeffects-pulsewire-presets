@@ -43,18 +43,19 @@ python -m projectpulsewire start
 ```
 projectpulsewire/
 ├── src/projectpulsewire/
-│   ├── __init__.py      # Version and imports
-│   ├── __main__.py      # Entry point
-│   ├── cli.py           # Interactive menu
-│   ├── presets.py       # Preset loading/install logic
-│   └── irs_handler.py   # IRS file handling
-├── presets/             # JSON preset files (37 files)
-├── irs/                # IRS impulse response files (404 files)
-├── readme.md           # User documentation
-├── contributing.md     # This file
-├── security.md          # Security policy
-├── license             # MIT License
-└── pyproject.toml      # Package configuration
+│   ├── __init__.py           # Version and imports
+│   ├── __main__.py           # Entry point
+│   ├── cli.py                # Interactive menu
+│   ├── presets.py            # Preset loading/install logic
+│   ├── irs_handler.py        # IRS file handling
+│   ├── modernpresets/        # Modern (categorized) preset files
+│   ├── legacypresets/        # Legacy (original) preset files
+│   └── irs/                  # IRS impulse response files (404 files)
+├── readme.md                 # User documentation
+├── contributing.md           # This file
+├── security.md               # Security policy
+├── license                   # MIT License
+└── pyproject.toml            # Package configuration
 ```
 
 ---
@@ -63,7 +64,9 @@ projectpulsewire/
 
 ### JSON Preset Format
 
-1. Add your preset JSON file to the `presets/` folder
+1. Add your preset JSON file to either the `modernpresets/` or `legacypresets/` folder
+   - **modernpresets/**: For presets with category prefixes (e.g., "Bass - Cool Bass.json")
+   - **legacypresets/**: For presets without category organization
 2. Use EasyEffects to export your preset as JSON
 3. Ensure the file follows this structure:
 
