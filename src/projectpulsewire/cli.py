@@ -349,6 +349,7 @@ def show_main_menu() -> str:
   [bold white on #555555] 9 [/]  [bold]Help & Commands[/]  💡
   [bold white on #00bfff] 10 [/] [bold]IRS Guide (What are IRS files?)[/]  🎓
   [bold white on #7b68ee] 11 [/] [bold]Setup Audio Stack (Auto-Install)[/]  🔧
+  [bold white on #00ffcc] W [/]  [bold]Launch Web Dashboard (Browser UI)[/] 🌐
   [bold white on #555555] 0 [/]  [bold]Exit[/]  🚪
     """
     
@@ -361,7 +362,7 @@ def show_main_menu() -> str:
     ))
     console.print("[dim italic]--- Premium Audio Made Free | Developer: roshhellwett ---[/dim italic]\n")
     
-    choice = safe_input(">> [bold #ff007f]Enter your vibe (0-11):[/] ", allow_empty=False)
+    choice = safe_input(">> [bold #ff007f]Enter your vibe (0-11, or W for Web UI):[/] ", allow_empty=False)
     return choice
 
 def handle_browse_presets() -> None:
@@ -1603,7 +1604,9 @@ def handle_help() -> None:
 [bold cyan]--- Help & Commands ---[/bold cyan]
 
 [bold yellow]Quick Commands:[/bold yellow]
-  [green]python -m projectpulsewire start[/green]         Start interactive menu mode
+  [green]python -m projectpulsewire start[/green]         Start interactive menu mode (Option W for Web UI)
+  [green]python -m projectpulsewire serve[/green]         Launch local Web Dashboard UI (Port 8080)
+  [green]python -m projectpulsewire web[/green]           Launch local Web Dashboard UI
   [green]python -m projectpulsewire list[/green]          List all available presets
   [green]python -m projectpulsewire list-irs[/green]     List all available IRS files
   [green]python -m projectpulsewire install <name>[/green]  Install a preset by name
@@ -1643,6 +1646,31 @@ def handle_help() -> None:
     """)
     pause_for_user()
 
+def handle_serve_web(host: str = "127.0.0.1", port: int = 8080, open_browser: bool = True) -> None:
+    from projectpulsewire.web import start_server
+
+    console.clear()
+    console.print(Panel(
+        f"[bold #00ffcc]🚀 Launching ProjectPulsewire Web Studio...[/]\n\n"
+        f"  [dim]• Host Address:[/] [bold #ffffff]{host}[/]\n"
+        f"  [dim]• Initial Port:[/] [bold #ffffff]{port}[/]\n"
+        f"  [dim]• Auto-Open Browser:[/] [green]{'Yes' if open_browser else 'No'}[/]\n\n"
+        f"[dim]Press [bold #ff4466]Ctrl+C[/bold #ff4466] in terminal or click Shutdown in Web UI to stop.[/dim]",
+        title="[bold #00ffcc] 🌐 ProjectPulsewire Local Web Server [/]",
+        border_style="#00ffcc",
+        box=box.ROUNDED,
+    ))
+    try:
+        server, actual_port = start_server(host=host, port=port, open_browser=open_browser)
+        console.print(f"\n[bold #00ffaa]✨ Server is live at:[/] [bold underline #00ccff]http://{host}:{actual_port}/[/bold underline #00ccff]\n")
+        server.start(block=True)
+    except KeyboardInterrupt:
+        console.print("\n[yellow]Stopping local web server...[/yellow]")
+    except Exception as e:
+        logger.error(f"Failed to start web server: {e}")
+        print_error_context("Failed to start web server", str(e), f"Ensure port {port} is accessible")
+        pause_for_user()
+
 def main_menu_loop() -> None:
     maybe_run_auto_update_check()
     while True:
@@ -1671,15 +1699,17 @@ def main_menu_loop() -> None:
                 handle_irs_guide()
             elif choice == "11":
                 handle_setup_audio()
+            elif choice.lower() in ("w", "web", "serve"):
+                handle_serve_web()
             elif choice == "0":
                 console.print("\n[cyan]Thank you for using projectpulsewire![/cyan]")
                 console.print("[dim]--- Copyright 2026 Zenith Open Source Projects | Developer: roshhellwett ---[/dim]\n")
                 break
             else:
                 if choice:
-                    console.print(f"\n[red]Invalid choice '{choice}'. Please enter 0-11.[/red]")
+                    console.print(f"\n[red]Invalid choice '{choice}'. Please enter 0-11 or W.[/red]")
                 else:
-                    console.print("\n[red]No input received. Please enter 0-11.[/red]")
+                    console.print("\n[red]No input received. Please enter 0-11 or W.[/red]")
                 pause_for_user()
         except KeyboardInterrupt:
             console.print("\n\n[cyan]Goodbye![/cyan]")
@@ -1912,6 +1942,33 @@ def setup():
 def irs_guide():
     """Show the IRS (Impulse Response) usage guide."""
     handle_irs_guide()
+
+@app.command()
+def serve(
+    host: str = typer.Option("127.0.0.1", "--host", "-h", help="Host address to bind to"),
+    port: int = typer.Option(8080, "--port", "-p", help="Port to listen on"),
+    browser: bool = typer.Option(True, "--browser/--no-browser", help="Open default web browser automatically"),
+):
+    """Start local web server and browser dashboard."""
+    handle_serve_web(host=host, port=port, open_browser=browser)
+
+@app.command()
+def web(
+    host: str = typer.Option("127.0.0.1", "--host", "-h", help="Host address to bind to"),
+    port: int = typer.Option(8080, "--port", "-p", help="Port to listen on"),
+    browser: bool = typer.Option(True, "--browser/--no-browser", help="Open default web browser automatically"),
+):
+    """Start local web server (alias for 'serve')."""
+    handle_serve_web(host=host, port=port, open_browser=browser)
+
+@app.command()
+def dashboard(
+    host: str = typer.Option("127.0.0.1", "--host", "-h", help="Host address to bind to"),
+    port: int = typer.Option(8080, "--port", "-p", help="Port to listen on"),
+    browser: bool = typer.Option(True, "--browser/--no-browser", help="Open default web browser automatically"),
+):
+    """Start local web server (alias for 'serve')."""
+    handle_serve_web(host=host, port=port, open_browser=browser)
 
 if __name__ == "__main__":
     app()

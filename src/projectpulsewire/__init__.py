@@ -1,7 +1,7 @@
 # projectpulsewire - EasyEffects Presets for Linux
 # Copyright (c) 2026 Zenith Open Source Projects | Developer: roshhellwett
 
-__version__ = "3.0.1"
+__version__ = "3.0.3"
 
 from projectpulsewire.presets import (
     get_all_presets,

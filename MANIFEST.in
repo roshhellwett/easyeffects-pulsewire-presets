@@ -8,5 +8,7 @@ recursive-include src *.py
 recursive-include src/projectpulsewire/modernpresets *.json
 recursive-include src/projectpulsewire/legacypresets *.json
 recursive-include src/projectpulsewire/irs *.irs
+recursive-include src/projectpulsewire/web/templates *
+recursive-include src/projectpulsewire/web/static *
 global-exclude __pycache__
 global-exclude *.py[co]

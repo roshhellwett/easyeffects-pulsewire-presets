@@ -1,5 +1,5 @@
 [![License](https://img.shields.io/badge/License-MIT-45b7d1?style=flat-square)](LICENSE)
-[![PyPI](https://img.shields.io/badge/PyPI-3.0.1-4ecdc4?style=flat-square)](https://pypi.org/project/projectpulsewire/)
+[![PyPI](https://img.shields.io/badge/PyPI-3.0.3-4ecdc4?style=flat-square)](https://pypi.org/project/projectpulsewire/)
 [![Platform](https://img.shields.io/badge/Platform-Linux-FCC624?style=flat-square&logo=linux)](https://github.com/roshhellwett/projectpulsewire)
 
 # PROJECT PULSEWIRE
@@ -20,10 +20,14 @@ Open your terminal and run:
 pip install projectpulsewire
 ```
 
-### Step 2: Open the menu
+### Step 2: Open the menu or Web Dashboard
 
 ```bash
+# Terminal interactive menu:
 python -m projectpulsewire start
+
+# OR launch the Cyber-Audio Web Studio in your browser:
+python -m projectpulsewire serve
 ```
 
 ### Step 3: Choose what to do!
@@ -40,6 +44,7 @@ python -m projectpulsewire start
  9   Help & Commands                        ← Learn more
 10   IRS Guide                              ← Learn what IRS files are & how to use them
 11   Setup Audio Stack                      ← Auto-detect & install audio dependencies
+ W   Launch Web Dashboard (Browser UI)      ← Visual modern web dashboard 🌐
  0   Exit
 ```
 
@@ -49,7 +54,31 @@ After installing presets, close and reopen **EasyEffects** app. Your new presets
 
 ---
 
+## 🌐 Local Web Dashboard (NEW in v3.1)
+
+Prefer a visual interface? ProjectPulsewire includes a built-in, zero-dependency local web studio with glassmorphic cyberpunk aesthetics:
+
+```bash
+python -m projectpulsewire serve
+# Or alias:
+python -m projectpulsewire web
+```
+
+- **Instant 1-Click & Batch Management**: Install or uninstall single presets or bulk select with floating batch toolbars.
+- **Signal Chain Inspector**: Visualize the audio effect plugin pipeline (Equalizer, Bass Enhancer, Limiter, Maximizer) before installing.
+- **Acoustic IRS Explorer**: Browse 404 impulse response files categorized with use-case guides and size metrics.
+- **Audio Stack Diagnostics**: Live status indicators for PipeWire, WirePlumber, EasyEffects, and plugins.
+- **Preset Source Switcher**: Toggle between Modern and Legacy presets instantly in browser.
+
+---
+
 ## 💻 Commands for Power Users
+
+### Web Dashboard
+```bash
+python -m projectpulsewire serve
+python -m projectpulsewire serve --port 8080 --no-browser
+```
 
 ### Interactive Menu (Recommended for Beginners)
 ```bash

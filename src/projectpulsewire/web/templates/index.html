@@ -1,0 +1,323 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ProjectPulsewire Studio | Linux Audio Preset Manager</title>
+  <link rel="icon" type="image/svg+xml" href="/static/img/favicon.svg">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/static/css/style.css">
+</head>
+<body>
+  <div class="app-container">
+    
+    <!-- Navigation Bar -->
+    <header class="navbar">
+      <div class="brand-section" onclick="switchTab('dashboard')">
+        <img src="/static/img/logo.svg" alt="ProjectPulsewire" class="brand-logo">
+        <div class="nav-spectrum" title="Audio Wave Status">
+          <div class="spectrum-bar"></div>
+          <div class="spectrum-bar"></div>
+          <div class="spectrum-bar"></div>
+          <div class="spectrum-bar"></div>
+          <div class="spectrum-bar"></div>
+          <div class="spectrum-bar"></div>
+        </div>
+      </div>
+
+      <nav class="nav-links">
+        <button class="nav-tab active" data-tab="dashboard" onclick="switchTab('dashboard')">
+          <span>Overview</span>
+        </button>
+        <button class="nav-tab" data-tab="presets" onclick="switchTab('presets')">
+          <span>EQ Presets</span>
+          <span class="badge" id="badge-presets">-</span>
+        </button>
+        <button class="nav-tab" data-tab="irs" onclick="switchTab('irs')">
+          <span>IRS Convolver</span>
+          <span class="badge" id="badge-irs">-</span>
+        </button>
+        <button class="nav-tab" data-tab="stack" onclick="switchTab('stack')">
+          <span>Audio Stack</span>
+        </button>
+        <button class="nav-tab" data-tab="settings" onclick="switchTab('settings')">
+          <span>Settings</span>
+        </button>
+        <button class="nav-tab" data-tab="guide" onclick="switchTab('guide')">
+          <span>IRS Guide</span>
+        </button>
+      </nav>
+
+      <div class="nav-status">
+        <div class="pulse-indicator" id="pw-status-pill">
+          <div class="pulse-dot"></div> PipeWire Active
+        </div>
+      </div>
+    </header>
+
+    <!-- Main View -->
+    <main class="main-view">
+
+      <!-- ================= TAB 1: DASHBOARD ================= -->
+      <section class="tab-pane active" id="tab-dashboard">
+        
+        <!-- Hero Banner -->
+        <div class="hero-banner">
+          <h1 class="hero-title">Studio Overview</h1>
+          <p class="hero-subtitle">
+            Manage, tune, and deploy calibrated EasyEffects EQ presets and acoustic impulse response files for PipeWire on Linux.
+          </p>
+
+          <!-- Update Alert Banner -->
+          <div id="update-notification-card" style="display:none; align-items:center; justify-content:space-between; background:var(--accent-amber-dim); border:1px solid rgba(245,158,11,0.3); border-radius:var(--radius-sm); padding:12px 18px; margin-bottom:18px;">
+            <div style="display:flex; align-items:center; gap:10px;">
+              <span style="color:var(--accent-amber); font-weight:700;">Update Available</span>
+              <span style="color:var(--text-secondary); font-size:0.86rem;">Version <span id="latest-ver-text">-</span> is available on PyPI.</span>
+            </div>
+            <button class="btn btn-secondary btn-sm" onclick="triggerPackageUpgrade()">Upgrade</button>
+          </div>
+
+          <!-- Stats Grid -->
+          <div class="stats-grid">
+            <div class="stat-card" onclick="switchTab('presets')" style="cursor:pointer;">
+              <div class="stat-header">
+                <span class="stat-label">EQ Presets</span>
+                <span class="stat-icon">🎧</span>
+              </div>
+              <div class="stat-value" id="stat-presets">- / -</div>
+              <div class="stat-subtext">Installed vs Available</div>
+            </div>
+
+            <div class="stat-card" onclick="switchTab('irs')" style="cursor:pointer;">
+              <div class="stat-header">
+                <span class="stat-label">IRS Convolvers</span>
+                <span class="stat-icon">💿</span>
+              </div>
+              <div class="stat-value" id="stat-irs">- / -</div>
+              <div class="stat-subtext">Spatial & Acoustic Profiles</div>
+            </div>
+
+            <div class="stat-card" onclick="switchTab('settings')" style="cursor:pointer;">
+              <div class="stat-header">
+                <span class="stat-label">Preset Source</span>
+                <span class="stat-icon">📁</span>
+              </div>
+              <div class="stat-value" id="stat-source" style="font-size:1.25rem; color:var(--accent-primary);">-</div>
+              <div class="stat-subtext">Configurable in Settings</div>
+            </div>
+
+            <div class="stat-card" onclick="switchTab('stack')" style="cursor:pointer;">
+              <div class="stat-header">
+                <span class="stat-label">EasyEffects</span>
+                <span class="stat-icon">🎛️</span>
+              </div>
+              <div class="stat-value" id="stat-ee-ver" style="font-size:1.2rem;">-</div>
+              <div class="stat-subtext">Audio Processor</div>
+            </div>
+          </div>
+
+          <!-- Quick Action Buttons -->
+          <div class="quick-actions-bar">
+            <button class="btn btn-primary" onclick="installAllUninstalledPresets()">
+              Install All Available Presets
+            </button>
+            <button class="btn btn-secondary" onclick="switchTab('presets')">
+              Browse Presets
+            </button>
+            <button class="btn btn-secondary" onclick="switchTab('irs')">
+              Browse IRS Files
+            </button>
+            <button class="btn btn-secondary" onclick="switchTab('stack')">
+              Audio Diagnostics
+            </button>
+          </div>
+        </div>
+
+      </section>
+
+      <!-- ================= TAB 2: EQ PRESETS ================= -->
+      <section class="tab-pane" id="tab-presets">
+        <div class="toolbar">
+          <div class="search-wrapper">
+            <span class="search-icon">🔍</span>
+            <input type="text" id="preset-search-input" class="search-input" placeholder="Search presets by name (e.g. Bass, Harman, Vocal)...">
+          </div>
+          <div class="filter-pills" id="preset-category-pills"></div>
+          <div>
+            <button class="btn btn-primary btn-sm" onclick="installAllUninstalledPresets()">
+              Install All Uninstalled
+            </button>
+          </div>
+        </div>
+
+        <div class="cards-grid" id="presets-grid"></div>
+      </section>
+
+      <!-- ================= TAB 3: IRS CONVOLVER ================= -->
+      <section class="tab-pane" id="tab-irs">
+        <div class="toolbar">
+          <div class="search-wrapper">
+            <span class="search-icon">🔍</span>
+            <input type="text" id="irs-search-input" class="search-input" placeholder="Search 404 IRS impulse files (e.g. Dolby, Creative, BassWaves)...">
+          </div>
+          <div class="filter-pills" id="irs-category-pills"></div>
+          <div>
+            <button class="btn btn-primary btn-sm" onclick="installAllUninstalledIRS()">
+              Install All Uninstalled
+            </button>
+          </div>
+        </div>
+
+        <div class="cards-grid" id="irs-grid"></div>
+      </section>
+
+      <!-- ================= TAB 4: AUDIO STACK ================= -->
+      <section class="tab-pane" id="tab-stack">
+        <div class="hero-banner" style="padding: 20px 24px; margin-bottom: 20px;">
+          <div style="display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:14px;">
+            <div>
+              <h2 style="font-size:1.35rem; font-weight:700;">Linux Audio Stack Diagnostics</h2>
+              <p style="color:var(--text-secondary); font-size:0.86rem; margin-top:2px;">
+                Detected Environment: <span class="badge-tag" id="distro-name-badge" style="color:var(--accent-primary); border-color:var(--border-highlight);">-</span>
+              </p>
+            </div>
+            <button class="btn btn-primary btn-sm" onclick="triggerInstallAudioStack()">
+              Auto-Install Dependencies
+            </button>
+          </div>
+
+          <!-- Sudo command snippet if missing packages -->
+          <div id="install-cmd-box" class="code-box" style="display:none;">
+            <code id="install-cmd-text">sudo apt install ...</code>
+            <button class="btn btn-secondary btn-sm" onclick="copyCommandToClipboard()">Copy</button>
+          </div>
+        </div>
+
+        <table class="diag-table">
+          <thead>
+            <tr>
+              <th>Package</th>
+              <th>Priority</th>
+              <th>System Package</th>
+              <th>Status</th>
+            </tr>
+          </thead>
+          <tbody id="stack-table-body"></tbody>
+        </table>
+      </section>
+
+      <!-- ================= TAB 5: SETTINGS & UPDATES ================= -->
+      <section class="tab-pane" id="tab-settings">
+        <div style="display:grid; grid-template-columns: repeat(auto-fit, minmax(340px, 1fr)); gap:18px;">
+          
+          <!-- Source Switcher Card -->
+          <div class="card">
+            <h3 style="font-size:1.05rem; font-weight:600; margin-bottom:6px; color:var(--text-primary);">Preset Catalog Source</h3>
+            <p style="color:var(--text-secondary); font-size:0.84rem; margin-bottom:14px;">
+              Select between categorized Modern Presets or the original Legacy Presets library.
+            </p>
+            <select id="source-select" class="search-input" style="padding:8px 12px; margin-bottom:12px;" onchange="handleSourceChange(this.value)">
+              <option value="modernpresets">Modern Presets (Categorized, Curated)</option>
+              <option value="legacypresets">Legacy Presets (Original Community Archive)</option>
+            </select>
+          </div>
+
+          <!-- EasyEffects Paths Card -->
+          <div class="card">
+            <h3 style="font-size:1.05rem; font-weight:600; margin-bottom:6px; color:var(--text-primary);">System Configuration Paths</h3>
+            <div style="margin-bottom:10px;">
+              <div style="font-size:0.75rem; text-transform:uppercase; color:var(--text-tertiary); font-weight:600;">Output Presets Directory</div>
+              <div style="font-family:var(--font-mono); font-size:0.8rem; color:var(--text-secondary); word-break:break-all;" id="setting-presets-path">-</div>
+            </div>
+            <div>
+              <div style="font-size:0.75rem; text-transform:uppercase; color:var(--text-tertiary); font-weight:600;">Convolver IRS Directory</div>
+              <div style="font-family:var(--font-mono); font-size:0.8rem; color:var(--text-secondary); word-break:break-all;" id="setting-convolver-path">-</div>
+            </div>
+          </div>
+
+          <!-- Package Updates Card -->
+          <div class="card">
+            <h3 style="font-size:1.05rem; font-weight:600; margin-bottom:6px; color:var(--text-primary);">Package Version & Release</h3>
+            <p style="color:var(--text-secondary); font-size:0.84rem; margin-bottom:14px;">
+              Installed ProjectPulsewire version: <strong style="color:var(--text-primary);">v<span id="current-pkg-version">-</span></strong>.
+            </p>
+            <div>
+              <button class="btn btn-secondary btn-sm" onclick="triggerPackageUpgrade()">
+                Check / Upgrade via Pip
+              </button>
+            </div>
+          </div>
+
+          <!-- Server Management Card -->
+          <div class="card">
+            <h3 style="font-size:1.05rem; font-weight:600; margin-bottom:6px; color:var(--text-primary);">Server Control</h3>
+            <p style="color:var(--text-secondary); font-size:0.84rem; margin-bottom:14px;">
+              Terminate the local ProjectPulsewire background HTTP server process.
+            </p>
+            <div>
+              <button class="btn btn-danger btn-sm" onclick="shutdownServer()">
+                Stop Server
+              </button>
+            </div>
+          </div>
+
+        </div>
+      </section>
+
+      <!-- ================= TAB 6: IRS GUIDE ================= -->
+      <section class="tab-pane" id="tab-guide">
+        <div class="hero-banner" style="margin-bottom: 20px;">
+          <h2 style="font-size:1.4rem; font-weight:700; margin-bottom:6px;">IRS (Impulse Response) Usage Guide</h2>
+          <p style="color:var(--text-secondary); max-width:760px; font-size:0.9rem;">
+            Impulse Response files capture acoustic physical characteristics of hardware audio processors, concert spaces, and headphone frequency responses.
+          </p>
+
+          <div style="margin-top:16px; background:var(--bg-card); padding:16px 20px; border-radius:var(--radius-sm); border:1px solid var(--border-subtle);">
+            <h3 style="color:var(--accent-primary); margin-bottom:8px; font-size:0.95rem; font-weight:600;">EasyEffects Setup Steps:</h3>
+            <ol style="margin-left:18px; color:var(--text-secondary); font-size:0.86rem; line-height:1.7;">
+              <li>Install your desired IRS file using this studio or CLI.</li>
+              <li>Open <strong>EasyEffects</strong> → select <strong>Output Effects</strong>.</li>
+              <li>Click <strong>Add Effect</strong> → select <strong>Convolver</strong>.</li>
+              <li>In Convolver settings, click the <strong>Import / File</strong> icon.</li>
+              <li>Select your installed <code style="color:var(--accent-primary);">.irs</code> file from the IRS folder.</li>
+              <li><strong style="color:var(--text-primary);">Note:</strong> Always place a <strong>Limiter</strong> plugin after the Convolver to prevent digital clipping.</li>
+            </ol>
+          </div>
+        </div>
+
+        <h3 style="font-size:1.05rem; font-weight:600; margin-bottom:14px; color:var(--text-primary);">Impulse Response Categories</h3>
+        <div style="display:grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap:14px;" id="guide-categories-grid"></div>
+      </section>
+
+    </main>
+
+    <!-- Floating Batch Actions Toolbar -->
+    <div class="batch-bar" id="batch-bar">
+      <span class="batch-count" id="batch-count-text">0 items selected</span>
+      <button class="btn btn-primary btn-sm" onclick="handleBatchInstall()">Install Selected</button>
+      <button class="btn btn-danger btn-sm" onclick="handleBatchRemove()">Remove Selected</button>
+      <button class="btn btn-secondary btn-sm" onclick="selectAllVisible()">Select All</button>
+      <button class="btn btn-secondary btn-sm" onclick="clearAllSelections()">Clear</button>
+    </div>
+
+    <!-- Reusable Modal Window -->
+    <div class="modal-overlay" id="preset-modal">
+      <div class="modal-content" id="preset-modal-body"></div>
+    </div>
+
+    <!-- Toast Alerts Container -->
+    <div class="toast-container" id="toast-container"></div>
+
+    <!-- Footer -->
+    <footer class="footer">
+      <div>© 2026 <strong>Zenith Open Source Projects</strong>. Developed by @roshhellwett.</div>
+      <div>ProjectPulsewire Studio</div>
+    </footer>
+
+  </div>
+
+  <script src="/static/js/app.js"></script>
+</body>
+</html>

@@ -1,6 +1,6 @@
 import pathlib
 import sys
-sys.path.insert(0, r'D:\projectpulsewire\src')
+sys.path.insert(0, str(pathlib.Path(__file__).parent / "src"))
 
 import projectpulsewire.presets as presets_mod
 import projectpulsewire.irs_handler as irs_mod

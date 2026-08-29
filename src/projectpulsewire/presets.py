@@ -221,12 +221,33 @@ def get_all_presets(force_refresh: bool = False, preset_source: str = None) -> L
     _presets_cache[resolved_source] = sorted(presets, key=lambda x: x["name"].lower())
     return _presets_cache[resolved_source]
 
-def get_preset_by_name(name: str) -> Optional[Dict]:
-    all_presets = get_all_presets()
+def get_preset_by_name(name: str, preset_source: str = None) -> Optional[Dict]:
+    """Get a preset dictionary by its name.
+    
+    Searches the specified or active source first, then falls back to other sources.
+    """
+    if not name:
+        return None
+
     name_lower = name.lower()
-    for preset in all_presets:
+
+    if preset_source:
+        for preset in get_all_presets(preset_source=preset_source):
+            if preset["name"].lower() == name_lower:
+                return preset
+
+    # Search active source
+    for preset in get_all_presets():
         if preset["name"].lower() == name_lower:
             return preset
+
+    # Fallback to all other sources
+    for src in get_available_preset_sources():
+        if src != get_active_preset_source():
+            for preset in get_all_presets(preset_source=src):
+                if preset["name"].lower() == name_lower:
+                    return preset
+
     return None
 
 def get_presets_by_category(presets: List[Dict]) -> Dict[str, List[Dict]]:
