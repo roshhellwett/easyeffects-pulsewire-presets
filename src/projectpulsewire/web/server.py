@@ -23,6 +23,31 @@ STATIC_DIR = Path(__file__).parent / "static"
 TEMPLATES_DIR = Path(__file__).parent / "templates"
 
 
+def get_network_ips() -> list:
+    """Discover all non-loopback local network IP addresses."""
+    ips = []
+    try:
+        with socket.socket(socket.AF_INET, socket.SOCK_DGRAM) as s:
+            s.settimeout(0.2)
+            s.connect(("8.8.8.8", 80))
+            ip = s.getsockname()[0]
+            if ip not in ips and not ip.startswith("127."):
+                ips.append(ip)
+    except Exception:
+        pass
+
+    try:
+        hostname = socket.gethostname()
+        for info in socket.getaddrinfo(hostname, None, socket.AF_INET):
+            ip = info[4][0]
+            if ip not in ips and not ip.startswith("127."):
+                ips.append(ip)
+    except Exception:
+        pass
+
+    return ips
+
+
 def _is_port_in_use(port: int, host: str = "0.0.0.0") -> bool:
     """Check if a TCP port is currently in use."""
     with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
@@ -49,8 +74,24 @@ class PulsewireRequestHandler(http.server.SimpleHTTPRequestHandler):
         super().__init__(*args, directory=str(Path(__file__).parent), **kwargs)
 
     def log_message(self, format: str, *args: Any) -> None:
-        """Suppress default stdout logging or route to python logger."""
-        logger.debug(f"{self.address_string()} - {format % args}")
+        """Print real-time HTTP server access logs to terminal stdout."""
+        now = time.strftime("%H:%M:%S")
+        client = self.client_address[0] if hasattr(self, "client_address") else "127.0.0.1"
+        msg = format % args
+
+        # Colorize output
+        if any(code in msg for code in (" 200 ", " 204 ", " 304 ")):
+            color = "\033[92m"  # Green
+        elif any(code in msg for code in (" 400 ", " 404 ")):
+            color = "\033[93m"  # Yellow
+        elif any(code in msg for code in (" 500 ", " 502 ", " 503 ")):
+            color = "\033[91m"  # Red
+        else:
+            color = "\033[96m"  # Cyan
+
+        reset = "\033[0m"
+        dim = "\033[90m"
+        print(f" {dim}[{now}]{reset} [{client}] {color}{msg}{reset}", flush=True)
 
     def _send_json(self, data: Any, status_code: int = 200) -> None:
         """Send JSON HTTP response."""

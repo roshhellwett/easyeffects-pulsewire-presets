@@ -1647,28 +1647,38 @@ def handle_help() -> None:
     pause_for_user()
 
 def handle_serve_web(host: str = "0.0.0.0", port: int = 8080, open_browser: bool = True) -> None:
-    from projectpulsewire.web import start_server
+    from projectpulsewire.web.server import start_server, get_network_ips
 
-    display_host = "127.0.0.1" if host in ("0.0.0.0", "") else host
+    local_ips = get_network_ips()
+    urls_lines = [
+        f"  [#00ffcc]• Localhost:[/]  [bold underline #ffffff]http://localhost:{port}/[/bold underline #ffffff]",
+        f"  [#00ffcc]• Loopback:[/]   [bold underline #ffffff]http://127.0.0.1:{port}/[/bold underline #ffffff]"
+    ]
+    for ip in local_ips:
+        urls_lines.append(f"  [#00ffcc]• WSL / LAN:[/]  [bold underline #00ffaa]http://{ip}:{port}/[/bold underline #00ffaa]  [dim yellow](Use this in Windows browser if localhost fails)[/dim yellow]")
+
+    urls_text = "\n".join(urls_lines)
+
     console.clear()
     console.print(Panel(
-        f"[bold #00ffcc]🚀 Launching ProjectPulsewire Web Studio...[/]\n\n"
-        f"  [dim]• Host Address:[/] [bold #ffffff]{display_host}[/] [dim](0.0.0.0 / WSL Bridge)[/]\n"
-        f"  [dim]• Initial Port:[/] [bold #ffffff]{port}[/]\n"
-        f"  [dim]• Auto-Open Browser:[/] [green]{'Yes' if open_browser else 'No'}[/]\n\n"
+        f"[bold #00ffcc]🚀 ProjectPulsewire Studio Server Active[/]\n\n"
+        f"[bold white]Available Access URLs:[/bold white]\n"
+        f"{urls_text}\n\n"
+        f"  [dim]• Listening Interface:[/] [bold #ffffff]{host}[/] [dim](0.0.0.0 - all network interfaces)[/]\n"
+        f"  [dim]• Live Request Logs:[/]   [green]Active (All incoming HTTP requests shown below in real-time)[/green]\n\n"
         f"[dim]Press [bold #ff4466]Ctrl+C[/bold #ff4466] in terminal or click Shutdown in Web UI to stop.[/dim]",
         title="[bold #00ffcc] 🌐 ProjectPulsewire Local Web Server [/]",
         border_style="#00ffcc",
         box=box.ROUNDED,
     ))
+    console.print("[bold #ff007f]─── Live Server Traffic & Diagnostic Logs ───[/bold #ff007f]\n")
     try:
         server, actual_port = start_server(host=host, port=port, open_browser=open_browser)
-        console.print(f"\n[bold #00ffaa]✨ Server is live at:[/] [bold underline #00ccff]http://{display_host}:{actual_port}/[/bold underline #00ccff]\n")
         server.start(block=True)
     except KeyboardInterrupt:
         console.print("\n[yellow]Stopping local web server...[/yellow]")
     except Exception as e:
-        logger.error(f"Failed to start web server: {e}")
+        logger.exception(f"Failed to start web server: {e}")
         print_error_context("Failed to start web server", str(e), f"Ensure port {port} is accessible")
         pause_for_user()
 
