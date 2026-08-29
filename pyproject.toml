@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "projectpulsewire"
-version = "3.0.3"
+version = "3.0.4"
 description = "Premium CLI to install and manage professionally-tuned EasyEffects presets, IRS files, and Linux audio dependencies"
 readme = "readme.md"
 license = "MIT"

@@ -1646,13 +1646,14 @@ def handle_help() -> None:
     """)
     pause_for_user()
 
-def handle_serve_web(host: str = "127.0.0.1", port: int = 8080, open_browser: bool = True) -> None:
+def handle_serve_web(host: str = "0.0.0.0", port: int = 8080, open_browser: bool = True) -> None:
     from projectpulsewire.web import start_server
 
+    display_host = "127.0.0.1" if host in ("0.0.0.0", "") else host
     console.clear()
     console.print(Panel(
         f"[bold #00ffcc]🚀 Launching ProjectPulsewire Web Studio...[/]\n\n"
-        f"  [dim]• Host Address:[/] [bold #ffffff]{host}[/]\n"
+        f"  [dim]• Host Address:[/] [bold #ffffff]{display_host}[/] [dim](0.0.0.0 / WSL Bridge)[/]\n"
         f"  [dim]• Initial Port:[/] [bold #ffffff]{port}[/]\n"
         f"  [dim]• Auto-Open Browser:[/] [green]{'Yes' if open_browser else 'No'}[/]\n\n"
         f"[dim]Press [bold #ff4466]Ctrl+C[/bold #ff4466] in terminal or click Shutdown in Web UI to stop.[/dim]",
@@ -1662,7 +1663,7 @@ def handle_serve_web(host: str = "127.0.0.1", port: int = 8080, open_browser: bo
     ))
     try:
         server, actual_port = start_server(host=host, port=port, open_browser=open_browser)
-        console.print(f"\n[bold #00ffaa]✨ Server is live at:[/] [bold underline #00ccff]http://{host}:{actual_port}/[/bold underline #00ccff]\n")
+        console.print(f"\n[bold #00ffaa]✨ Server is live at:[/] [bold underline #00ccff]http://{display_host}:{actual_port}/[/bold underline #00ccff]\n")
         server.start(block=True)
     except KeyboardInterrupt:
         console.print("\n[yellow]Stopping local web server...[/yellow]")
@@ -1945,7 +1946,7 @@ def irs_guide():
 
 @app.command()
 def serve(
-    host: str = typer.Option("127.0.0.1", "--host", "-h", help="Host address to bind to"),
+    host: str = typer.Option("0.0.0.0", "--host", "-h", help="Host address to bind to (0.0.0.0 for WSL/LAN)"),
     port: int = typer.Option(8080, "--port", "-p", help="Port to listen on"),
     browser: bool = typer.Option(True, "--browser/--no-browser", help="Open default web browser automatically"),
 ):
@@ -1954,7 +1955,7 @@ def serve(
 
 @app.command()
 def web(
-    host: str = typer.Option("127.0.0.1", "--host", "-h", help="Host address to bind to"),
+    host: str = typer.Option("0.0.0.0", "--host", "-h", help="Host address to bind to (0.0.0.0 for WSL/LAN)"),
     port: int = typer.Option(8080, "--port", "-p", help="Port to listen on"),
     browser: bool = typer.Option(True, "--browser/--no-browser", help="Open default web browser automatically"),
 ):
@@ -1963,7 +1964,7 @@ def web(
 
 @app.command()
 def dashboard(
-    host: str = typer.Option("127.0.0.1", "--host", "-h", help="Host address to bind to"),
+    host: str = typer.Option("0.0.0.0", "--host", "-h", help="Host address to bind to (0.0.0.0 for WSL/LAN)"),
     port: int = typer.Option(8080, "--port", "-p", help="Port to listen on"),
     browser: bool = typer.Option(True, "--browser/--no-browser", help="Open default web browser automatically"),
 ):

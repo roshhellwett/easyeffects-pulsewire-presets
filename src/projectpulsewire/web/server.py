@@ -23,14 +23,15 @@ STATIC_DIR = Path(__file__).parent / "static"
 TEMPLATES_DIR = Path(__file__).parent / "templates"
 
 
-def _is_port_in_use(port: int, host: str = "127.0.0.1") -> bool:
+def _is_port_in_use(port: int, host: str = "0.0.0.0") -> bool:
     """Check if a TCP port is currently in use."""
     with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
         s.settimeout(0.5)
-        return s.connect_ex((host, port)) == 0
+        test_host = "127.0.0.1" if host in ("0.0.0.0", "") else host
+        return s.connect_ex((test_host, port)) == 0
 
 
-def find_available_port(start_port: int = 8080, max_attempts: int = 20, host: str = "127.0.0.1") -> int:
+def find_available_port(start_port: int = 8080, max_attempts: int = 20, host: str = "0.0.0.0") -> int:
     """Find the next available port starting from start_port."""
     for port in range(start_port, start_port + max_attempts):
         if not _is_port_in_use(port, host):
@@ -239,7 +240,7 @@ class PulsewireRequestHandler(http.server.SimpleHTTPRequestHandler):
 class PulsewireServer:
     """Multi-threaded HTTP Server for ProjectPulsewire."""
 
-    def __init__(self, host: str = "127.0.0.1", port: int = 8080):
+    def __init__(self, host: str = "0.0.0.0", port: int = 8080):
         self.host = host
         self.port = port
         self._server: Optional[http.server.ThreadingHTTPServer] = None
@@ -248,7 +249,8 @@ class PulsewireServer:
 
     @property
     def url(self) -> str:
-        return f"http://{self.host}:{self.port}"
+        display_host = "127.0.0.1" if self.host in ("0.0.0.0", "") else self.host
+        return f"http://{display_host}:{self.port}"
 
     def start(self, block: bool = True) -> None:
         """Start the web server."""
@@ -274,7 +276,7 @@ class PulsewireServer:
             self._server.server_close()
 
 
-def start_server(host: str = "127.0.0.1", port: int = 8080, open_browser: bool = True) -> Tuple[PulsewireServer, int]:
+def start_server(host: str = "0.0.0.0", port: int = 8080, open_browser: bool = True) -> Tuple[PulsewireServer, int]:
     """
     Launch the web server with automatic port resolution and optional browser launch.
     """
